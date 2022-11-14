@@ -27,52 +27,52 @@ const limitCacheSize = (name, size) => {
 
 // install event
 self.addEventListener('install', evt => {
-  // console.log('service worker has been installed');
-  // evt.waitUntil(
-  //   caches.open(staticCashName).then(cache => {
-  //     console.log('caching shell assets');
-  //     cache.addAll(assets);
-  //   }),
-  // );
+  console.log('service worker has been installed');
+  evt.waitUntil(
+    caches.open(staticCashName).then(cache => {
+      console.log('caching shell assets');
+      cache.addAll(assets);
+    }),
+  );
 });
 
 // activate event
 self.addEventListener('activate', evt => {
-  // console.log('service worker has been activated');
-  // evt.waitUntil(
-  //   caches.keys().then(keys => {
-  //     // console.log(keys);
-  //     return Promise.all(
-  //       keys
-  //         .filter(key => key !== staticCashName && key !== dynamicCasheName)
-  //         .map(key => caches.delete(key)),
-  //     );
-  //   }),
-  // );
+  console.log('service worker has been activated');
+  evt.waitUntil(
+    caches.keys().then(keys => {
+      // console.log(keys);
+      return Promise.all(
+        keys
+          .filter(key => key !== staticCashName && key !== dynamicCasheName)
+          .map(key => caches.delete(key)),
+      );
+    }),
+  );
 });
 
 // fetch event
 self.addEventListener('fetch', evt => {
   // console.log('fetch event', evt);
-  // evt.respondWith(
-  //   caches
-  //     .match(evt.request)
-  //     .then(cacheRes => {
-  //       return (
-  //         cacheRes ||
-  //         fetch(evt.request).then(async fetchRes => {
-  //           const cache = await caches.open(dynamicCasheName);
-  //           await cache.put(evt.request.url, fetchRes.clone());
-  //           limitCacheSize(dynamicCasheName, 15);
-  //           return fetchRes;
-  //         })
-  //       );
-  //     })
-  //     .catch(() => {
-  //       // if (evt.request.url.indexOf('.html') > -1) {
-  //       if (evt.request.destination === 'document') {
-  //         return caches.match('/pwa-video-player/pages/fallback.html');
-  //       }
-  //     }),
-  // );
+  evt.respondWith(
+    caches
+      .match(evt.request)
+      .then(cacheRes => {
+        return (
+          cacheRes ||
+          fetch(evt.request).then(async fetchRes => {
+            const cache = await caches.open(dynamicCasheName);
+            await cache.put(evt.request.url, fetchRes.clone());
+            limitCacheSize(dynamicCasheName, 15);
+            return fetchRes;
+          })
+        );
+      })
+      .catch(() => {
+        // if (evt.request.url.indexOf('.html') > -1) {
+        if (evt.request.destination === 'document') {
+          return caches.match('/pwa-video-player/pages/fallback.html');
+        }
+      }),
+  );
 });
