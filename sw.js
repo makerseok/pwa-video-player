@@ -1,17 +1,17 @@
 const staticCashName = 'site-static-v1';
 const dynamicCasheName = 'site-dynamic-v1';
 const assets = [
-  '/',
-  '/index.html',
-  '/js/app.js',
-  '/js/ui.js',
-  '/js/materialize.min.js',
-  '/css/styles.css',
-  '/css/materialize.min.css',
-  '/img/dish.png',
+  '/pwa-video-player/',
+  '/pwa-video-player/index.html',
+  '/pwa-video-player/js/app.js',
+  '/pwa-video-player/js/ui.js',
+  '/pwa-video-player/js/materialize.min.js',
+  '/pwa-video-player/css/styles.css',
+  '/pwa-video-player/css/materialize.min.css',
+  '/pwa-video-player/img/dish.png',
   'https://fonts.googleapis.com/icon?family=Material+Icons',
   'https://fonts.gstatic.com/s/materialicons/v139/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2',
-  '/pages/fallback.html',
+  '/pwa-video-player/pages/fallback.html',
 ];
 
 // cache size limit function
@@ -71,7 +71,7 @@ self.addEventListener('fetch', evt => {
   //     .catch(() => {
   //       // if (evt.request.url.indexOf('.html') > -1) {
   //       if (evt.request.destination === 'document') {
-  //         return caches.match('/pages/fallback.html');
+  //         return caches.match('/pwa-video-player/pages/fallback.html');
   //       }
   //     }),
   // );

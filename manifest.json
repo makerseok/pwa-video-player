@@ -1,45 +1,45 @@
 {
   "name": "PWA Video Player",
   "short_name": "PWAVideoPlayer",
-  "start_url": "/index.html",
+  "start_url": "/pwa-video-player/index.html",
   "display": "standalone",
   "background_color": "#FFE0D2",
   "theme_color": "#FFE1C4",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/img/icons/android-icon-72x72.png",
+      "src": "/pwa-video-player/img/icons/android-icon-72x72.png",
       "type": "image/png",
       "sizes": "72x72"
     },
     {
-      "src": "/img/icons/android-icon-144x144.png",
+      "src": "/pwa-video-player/img/icons/android-icon-144x144.png",
       "type": "image/png",
       "sizes": "144x144"
     },
     {
-      "src": "/img/icons/android-icon-192x192.png",
+      "src": "/pwa-video-player/img/icons/android-icon-192x192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "/img/icons/favicon-96x96.png",
+      "src": "/pwa-video-player/img/icons/favicon-96x96.png",
       "type": "image/png",
       "sizes": "96x96"
     },
     {
-      "src": "/img/icons/favicon-16x16.png",
+      "src": "/pwa-video-player/img/icons/favicon-16x16.png",
       "type": "image/png",
       "sizes": "16x16"
     },
     {
-      "src": "/img/icons/favicon-32x32.png",
+      "src": "/pwa-video-player/img/icons/favicon-32x32.png",
       "type": "image/png",
       "sizes": "32x32"
     },
     {
-      "src": "/img/icons/icon-512x512.png",
+      "src": "/pwa-video-player/img/icons/icon-512x512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
