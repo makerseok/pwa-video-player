@@ -12,6 +12,9 @@ const assets = [
   'https://fonts.googleapis.com/icon?family=Material+Icons',
   'https://fonts.gstatic.com/s/materialicons/v139/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2',
   '/pwa-video-player/pages/fallback.html',
+  '/pwa-video-player/css/video-js.min.css',
+  '/pwa-video-player/js/video.min.js',
+  '/pwa-video-player/js/videojs-playlist.min.js',
 ];
 
 // cache size limit function
