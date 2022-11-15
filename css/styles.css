@@ -21,6 +21,12 @@ nav .sidenav-trigger {
   margin: 0;
 }
 
+/* modal popup styles */
+#modal-player {
+  max-height: none !important;
+  margin: 0px !important;
+}
+
 /* recipe styles */
 .recipes {
   margin-top: 20px;

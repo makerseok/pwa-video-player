@@ -22,6 +22,11 @@
     />
     <link
       type="text/css"
+      href="/pwa-video-player/css/jquery-ui.min.css"
+      rel="stylesheet"
+    />
+    <link
+      type="text/css"
       href="/pwa-video-player/css/video-js.min.css"
       rel="stylesheet"
     />
@@ -45,6 +50,11 @@
     />
     <meta name="apple-mobile-web-app-status-bar" content="#aa7700" />
     <meta name="theme-color" content="#ffe1c4" />
+    <!-- <script src="https://code.jquery.com/jquery-1.12.4.js"></script> -->
+    <script src="/pwa-video-player/js/jquery.min.js"></script>
+    <script src="/pwa-video-player/js/jquery-ui.min.js"></script>
+    <script src="/pwa-video-player/js/jquery-migrate-3.4.0.min.js"></script>
+    <script src="/pwa-video-player/js/axios.min.js"></script>
   </head>
   <body class="grey lighten-4">
     <!-- top nav -->
@@ -91,16 +101,10 @@
     </div> -->
 
     <!-- Modal player -->
-    <div id="modal-player" class="modal">
-      <div class="modal-content">
-        <h4>Modal Header</h4>
-        <p>A bunch of text</p>
-      </div>
-      <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat"
-          >Agree</a
-        >
-      </div>
+    <div id="modal-player">
+      <!-- <div class="modal-content"> -->
+      <video class="video-js vjs-default-skin" controls></video>
+      <!-- </div> -->
     </div>
 
     <script src="/pwa-video-player/js/db.js"></script>
