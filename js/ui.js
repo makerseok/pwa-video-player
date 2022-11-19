@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   M.Sidenav.init(menus, { edge: 'right' });
 });
 
+const did = 1;
 let ptop = 30;
 let pleft = 30;
 let pwidth = 800;
@@ -12,7 +13,8 @@ let pheight = 600;
 const playerDOM = document.querySelector('#modal-player');
 
 document.addEventListener('click', event => {
-  if (event.target != playerDOM) {
+  console.log(event.target.contains(playerDOM));
+  if (event.target === playerDOM ? true : event.target.contains(playerDOM)) {
     playerDOM.style.display = 'none';
   }
 });
@@ -37,6 +39,18 @@ let player = videojs(document.querySelector('.video-js'), {
   inactivityTimeout: 0,
   autoplay: true,
 });
+
+player.ready(function () {
+  getRADList(did);
+  this.volume(0);
+  this.play();
+});
+
+const initPlayerPlaylist = (player, playlist) => {
+  player.playlist(playlist);
+  player.playlist.repeat(true);
+  player.playlist.autoadvance(0);
+};
 
 function getTargetInfo() {
   let refTimestamp =
