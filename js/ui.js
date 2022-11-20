@@ -47,14 +47,39 @@ let player = videojs(document.querySelector('.video-js'), {
 });
 
 player.ready(function () {
+  console.log('player ready');
   getRADList(did);
   this.volume(0);
-  this.play();
 });
 
+player.on('play', async function () {
+  const playlist = this.playlist();
+  const currentIdx = this.playlist.currentIndex();
+  const targetIdx = (currentIdx + 1) % playlist.length;
+
+  if (playlist[currentIdx].reportUrl) {
+    axios.get(playlist[currentIdx].reportUrl);
+  }
+
+  if (playlist[targetIdx].isHivestack === 'Y') {
+    const result = await getUrlFromHS(this.screen);
+    if (result.success) {
+      playlist[targetIdx].sources[0].src = result.videoUrl;
+      playlist[targetIdx].reportUrl = result.reportUrl;
+    } else {
+      playlist.splice(targetIdx, 1);
+    }
+  }
+
+  this.playlist(playlist, currentIdx);
+});
+
+const initPlayerPlaylist = (player, playlist, screen) => {
+  console.log('initPlayerPlaylist');
   totalRT = playlist.map(v => {
     return parseInt(v.runningTime) * 1000;
   });
+  player.screen = screen;
   player.playlist(playlist);
   player.playlist.repeat(true);
   player.playlist.autoadvance(0);
