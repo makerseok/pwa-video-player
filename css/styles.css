@@ -25,6 +25,7 @@ nav .sidenav-trigger {
 #modal-player {
   max-height: none !important;
   margin: 0px !important;
+  z-index: 100;
 }
 
 /* recipe styles */
