@@ -52,16 +52,29 @@ player.ready(function () {
   this.play();
 });
 
-const initPlayerPlaylist = (player, playlist) => {
+  totalRT = playlist.map(v => {
+    return parseInt(v.runningTime) * 1000;
+  });
   player.playlist(playlist);
   player.playlist.repeat(true);
   player.playlist.autoadvance(0);
+
+  let [idx, sec] = getTargetInfo();
+  console.log(idx, sec);
+  player.playlist.currentItem(idx);
+  player.currentTime(sec);
+  player.play();
 };
 
 function getTargetInfo() {
-  let refTimestamp =
+  let _refTimestamp =
     new Date(new Date().toDateString()).getTime() + 6 * 60 * 60 * 1000; // 06시 시작 기준
   let curTimestamp = new Date().getTime();
+  let refTimestamp =
+    _refTimestamp > curTimestamp
+      ? _refTimestamp - 24 * 60 * 60 * 1000
+      : _refTimestamp;
+
   let totalTimestamp = totalRT.reduce((acc, cur, idx) => (acc += cur), 0);
   let targetTimestamp = (curTimestamp - refTimestamp) % totalTimestamp;
 

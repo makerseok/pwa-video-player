@@ -14,7 +14,7 @@ const getRADList = deviceID => {
     })
     .then(response => {
       videoList = response.data.items.map(v => {
-        return { sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }] };
+          runningTime: v.RUNNING_TIME,
       });
       initPlayerPlaylist(player, videoList); // response.data.items[]
     })
