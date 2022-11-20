@@ -64,9 +64,14 @@ self.addEventListener('fetch', evt => {
         return (
           cacheRes ||
           fetch(evt.request).then(async fetchRes => {
-            const cache = await caches.open(dynamicCasheName);
-            await cache.put(evt.request.url, fetchRes.clone());
-            limitCacheSize(dynamicCasheName, 15);
+            if (
+              evt.request.destination !== 'video' &&
+              evt.request.url.indexOf('hivestack.com') === -1
+            ) {
+              const cache = await caches.open(dynamicCasheName);
+              await cache.put(evt.request.url, fetchRes.clone());
+              limitCacheSize(dynamicCasheName, 15);
+            }
             return fetchRes;
           })
         );
