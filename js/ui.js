@@ -19,18 +19,24 @@ document.addEventListener('click', event => {
   }
 });
 
+const observer = new ResizeObserver(entries => {
+  for (let entry of entries) {
+    const { width, height } = entry.contentRect;
+    $('.video-js').width(width).height(height);
+  }
+});
+
+observer.observe(playerDOM);
+
 // popup 노출
 document.addEventListener('DOMContentLoaded', () => {
   const player = playerDOM;
-  // const instances = M.Modal.init(player, options);
-  // instances.open();
-
-  $('.video-js').width(pwidth).height(pheight);
   $(player)
     .offset({ top: ptop, left: pleft })
     .width(pwidth)
     .height(pheight)
-    .draggable(true);
+    .draggable(true)
+    .resizable(true);
 });
 
 let totalRT = [];
