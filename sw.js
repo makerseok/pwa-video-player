@@ -55,22 +55,23 @@ self.addEventListener('activate', event => {
 });
 
 // fetch event
-self.addEventListener('fetch', evt => {
-  // console.log('fetch event', evt);
-  evt.respondWith(
+self.addEventListener('fetch', event => {
+  // console.log('fetch event', event);
+  if (event.request.method != 'GET') return;
+  event.respondWith(
     caches
-      .match(evt.request)
+      .match(event.request)
       .then(cacheRes => {
         return (
           cacheRes ||
-          fetch(evt.request).then(async fetchRes => {
+          fetch(event.request).then(async fetchRes => {
             if (
-              evt.request.destination !== 'video' &&
-              evt.request.url.indexOf('hivestack.com') === -1 &&
-              evt.request.url.indexOf(BASE_URL) === -1
+              event.request.destination !== 'video' &&
+              event.request.url.indexOf('hivestack.com') > -1 &&
+              event.request.url.indexOf('ords/podo') > -1
             ) {
               const cache = await caches.open(dynamicCasheName);
-              await cache.put(evt.request.url, fetchRes.clone());
+              await cache.put(event.request.url, fetchRes.clone());
               limitCacheSize(dynamicCasheName, 15);
             }
             return fetchRes;
@@ -78,8 +79,8 @@ self.addEventListener('fetch', evt => {
         );
       })
       .catch(() => {
-        // if (evt.request.url.indexOf('.html') > -1) {
-        if (evt.request.destination === 'document') {
+        // if (event.request.url.indexOf('.html') > -1) {
+        if (event.request.destination === 'document') {
           return caches.match('/pwa-video-player/pages/fallback.html');
         }
       }),
