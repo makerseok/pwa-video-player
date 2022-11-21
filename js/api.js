@@ -26,21 +26,41 @@ const getApiResponses = deviceId => {
         const { code, message, device_id, ...pos } = position;
 
         videoList = rad.items.map(v => {
-        return {
-          sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
-          isHivestack: v.HIVESTACK_YN,
-          runningTime: v.RUNNING_TIME,
-        };
-      });
+          return {
+            sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
+            isHivestack: v.HIVESTACK_YN,
+            runningTime: v.RUNNING_TIME,
+          };
+        });
         player.deviceId = deviceId;
         console.log('pos', pos);
         initPlayerUi(pos);
-      initPlayerPlaylist(player, videoList, screen); // response.data.items[]
+        initPlayerPlaylist(player, videoList, screen); // response.data.items[]
       }),
     )
     .catch(error => {
       console.log(error);
     });
+
+  // axios
+  //   .get(BASE_URL + RADS_URL, {
+  //     headers,
+  //   })
+  //   .then(response => {
+  //     const screen = response.data.device_code;
+
+  //     videoList = response.data.items.map(v => {
+  //       return {
+  //         sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
+  //         isHivestack: v.HIVESTACK_YN,
+  //         runningTime: v.RUNNING_TIME,
+  //       };
+  //     });
+  //     initPlayerPlaylist(player, videoList, screen); // response.data.items[]
+  //   })
+  //   .catch(error => {
+  //     console.log(error);
+  //   });
 };
 
 const getUrlFromHS = async (screen, retry = 0) => {
@@ -67,4 +87,15 @@ const getUrlFromHS = async (screen, retry = 0) => {
   }
   console.log(result);
   return result;
+};
+
+const postPlayerUi = (deviceId, position) => {
+  headers = {
+    auth: COMPANY_ID,
+    device_id: deviceId,
+  };
+
+  axios
+    .post(BASE_URL + POSITION_URL, position, { headers })
+    .then(console.log('position posted!', position));
 };

@@ -5,10 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const did = 1;
-let ptop = 30;
-let pleft = 30;
-let pwidth = 800;
-let pheight = 600;
 
 const playerDOM = document.querySelector('#modal-player');
 
@@ -23,21 +19,41 @@ const observer = new ResizeObserver(entries => {
   for (let entry of entries) {
     const { width, height } = entry.contentRect;
     $('.video-js').width(width).height(height);
+    console.log('observer', width, height);
   }
 });
 
 observer.observe(playerDOM);
 
 // popup 노출
-document.addEventListener('DOMContentLoaded', () => {
-  const player = playerDOM;
-  $(player)
-    .offset({ top: ptop, left: pleft })
-    .width(pwidth)
-    .height(pheight)
-    .draggable(true)
-    .resizable(true);
-});
+const initPlayerUi = position => {
+  const { width, height, ...offset } = position;
+  console.log(position);
+  $(playerDOM)
+    .offset(offset)
+    .width(width)
+    .height(height)
+    .draggable({
+      cursor: 'crosshair',
+      stop: function (event, ui) {
+        position = {
+          width: ui.helper.width(),
+          height: ui.helper.height(),
+          ...ui.offset,
+        };
+        postPlayerUi(player.deviceId, position);
+      },
+    })
+    .resizable({
+      stop: function (event, ui) {
+        position = {
+          ...ui.size,
+          ...ui.position,
+        };
+        postPlayerUi(player.deviceId, position);
+      },
+    });
+};
 
 let totalRT = [];
 
@@ -48,7 +64,8 @@ let player = videojs(document.querySelector('.video-js'), {
 
 player.ready(function () {
   console.log('player ready');
-  getRADList(did);
+  this.deviceId = did;
+  getApiResponses(this.deviceId);
   this.volume(0);
 });
 
