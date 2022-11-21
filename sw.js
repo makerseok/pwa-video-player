@@ -66,7 +66,8 @@ self.addEventListener('fetch', evt => {
           fetch(evt.request).then(async fetchRes => {
             if (
               evt.request.destination !== 'video' &&
-              evt.request.url.indexOf('hivestack.com') === -1
+              evt.request.url.indexOf('hivestack.com') === -1 &&
+              evt.request.url.indexOf(BASE_URL) === -1
             ) {
               const cache = await caches.open(dynamicCasheName);
               await cache.put(evt.request.url, fetchRes.clone());
