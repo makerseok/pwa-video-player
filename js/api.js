@@ -1,33 +1,43 @@
 const BASE_URL =
   'https://g575dfbc1dbf538-cms.adb.ap-seoul-1.oraclecloudapps.com/ords/podo/v1/podo/';
 const COMPANY_ID = '5CAE46D0460AFC9035AFE9AE32CD146539EDF83B';
+const POSITION_URL = 'devices/position';
 const RADS_URL = 'rads';
 const EADS_URL = 'eads';
 
 const HS_API_KEY =
   '$2b$12$y4OZHQji3orEPdy2FtQJye:8f3bc93a-3b31-4323-b1a0-fd20584d9de4';
 
-const getRADList = deviceID => {
+const getApiResponses = deviceId => {
   headers = {
     auth: COMPANY_ID,
-    device_id: deviceID,
+    device_id: deviceId,
   };
+  endpoint = [BASE_URL + RADS_URL, BASE_URL + POSITION_URL];
   axios
-    .get(BASE_URL + RADS_URL, {
-      headers,
-    })
-    .then(response => {
-      const screen = response.data.device_code;
+    .all(
+      endpoint.map(url => {
+        return axios.get(url, { headers });
+      }),
+    )
+    .then(
+      axios.spread(({ data: rad }, { data: position }) => {
+        const screen = rad.device_code;
+        const { code, message, device_id, ...pos } = position;
 
-      videoList = response.data.items.map(v => {
+        videoList = rad.items.map(v => {
         return {
           sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
           isHivestack: v.HIVESTACK_YN,
           runningTime: v.RUNNING_TIME,
         };
       });
+        player.deviceId = deviceId;
+        console.log('pos', pos);
+        initPlayerUi(pos);
       initPlayerPlaylist(player, videoList, screen); // response.data.items[]
-    })
+      }),
+    )
     .catch(error => {
       console.log(error);
     });
