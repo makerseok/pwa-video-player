@@ -29,9 +29,9 @@ const limitCacheSize = (name, size) => {
 };
 
 // install event
-self.addEventListener('install', evt => {
+self.addEventListener('install', event => {
   console.log('service worker has been installed');
-  evt.waitUntil(
+  event.waitUntil(
     caches.open(staticCashName).then(cache => {
       console.log('caching shell assets');
       cache.addAll(assets);
@@ -40,9 +40,9 @@ self.addEventListener('install', evt => {
 });
 
 // activate event
-self.addEventListener('activate', evt => {
+self.addEventListener('activate', event => {
   console.log('service worker has been activated');
-  evt.waitUntil(
+  event.waitUntil(
     caches.keys().then(keys => {
       // console.log(keys);
       return Promise.all(
