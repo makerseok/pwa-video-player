@@ -14,30 +14,23 @@ const getApiResponses = deviceId => {
     device_id: deviceId,
   };
   endpoint = [BASE_URL + RADS_URL, BASE_URL + POSITION_URL];
-  axios
-    .all(
-      endpoint.map(url => {
-        return axios.get(url, { headers });
-      }),
-    )
-    .then(
-      axios.spread(({ data: rad }, { data: position }) => {
-        const screen = rad.device_code;
-        const { code, message, device_id, ...pos } = position;
+  Promise.all(endpoint.map(url => axios.get(url, { headers })))
+    .then(([{ data: rad }, { data: position }]) => {
+      const screen = rad.device_code;
+      const { code, message, device_id, ...pos } = position;
 
-        videoList = rad.items.map(v => {
-          return {
-            sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
-            isHivestack: v.HIVESTACK_YN,
-            runningTime: v.RUNNING_TIME,
-          };
-        });
-        player.deviceId = deviceId;
-        console.log('pos', pos);
-        initPlayerUi(pos);
-        initPlayerPlaylist(player, videoList, screen); // response.data.items[]
-      }),
-    )
+      videoList = rad.items.map(v => {
+        return {
+          sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
+          isHivestack: v.HIVESTACK_YN,
+          runningTime: v.RUNNING_TIME,
+        };
+      });
+      player.deviceId = deviceId;
+      console.log('pos', pos);
+      initPlayerUi(pos);
+      initPlayerPlaylist(player, videoList, screen); // response.data.items[]
+    })
     .catch(error => {
       console.log(error);
     });
