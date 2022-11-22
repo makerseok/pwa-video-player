@@ -5,6 +5,7 @@ const DEVICE_URL = 'devices';
 const POSITION_URL = 'devices/position';
 const RADS_URL = 'rads';
 const EADS_URL = 'eads';
+const REPORT_URL = 'report';
 
 const HS_API_KEY =
   '$2b$12$y4OZHQji3orEPdy2FtQJye:8f3bc93a-3b31-4323-b1a0-fd20584d9de4';
@@ -26,8 +27,17 @@ const getApiResponses = deviceId => {
           sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
           isHivestack: v.HIVESTACK_YN,
           runningTime: v.RUNNING_TIME,
+          report: {
+            COMPANY_ID: COMPANY_ID,
+            DEVICE_ID: deviceId,
+            FILE_ID: v.FILE_ID,
+            HIVESTACK_YN: v.HIVESTACK_YN,
+            HIVESTACK_URL: v.VIDEO_URL,
+            PLAY_ON: null,
+          },
         };
       });
+
       videoList = rad.items.map((v, index) => {
         return {
           index: index + 1,
@@ -85,4 +95,15 @@ const postPlayerUi = (deviceId, position) => {
   axios
     .post(BASE_URL + POSITION_URL, position, { headers })
     .then(console.log('position posted!', position));
+};
+
+const postReport = (deviceId, data) => {
+  headers = {
+    auth: COMPANY_ID,
+    device_id: deviceId,
+  };
+
+  axios
+    .post(BASE_URL + REPORT_URL, data, { headers })
+    .then(console.log('reports posted!', data));
 };

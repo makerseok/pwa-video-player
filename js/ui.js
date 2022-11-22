@@ -65,6 +65,19 @@ const initPlayerUi = position => {
     });
 };
 
+const addMinutes = (date, min) => {
+  date.setMinutes(date.getMinutes() + min);
+
+  return date;
+};
+
+const getFormattedDate = date => {
+  const d = date.toISOString().split('T')[0].replaceAll('-', '');
+  const time = date.toTimeString().split(' ')[0];
+
+  return `${d} ${time}`;
+};
+
 let totalRT = [];
 
 let player = videojs(document.querySelector('.video-js'), {
@@ -96,6 +109,32 @@ player.on('play', async function () {
   }
 
   this.playlist(playlist, currentIdx);
+});
+
+player.on('ended', async function () {
+  const playlist = this.playlist();
+  const currentIdx = this.playlist.currentIndex();
+
+  if (playlist[currentIdx].reportUrl) {
+    axios.get(playlist[currentIdx].reportUrl);
+  }
+  let report = playlist[currentIdx].report;
+
+  report.PLAY_ON = getFormattedDate(new Date());
+
+  // const currentTenUnitMinute = Math.floor(new Date().getMinutes() / 10) * 10;
+
+  const reportDB = await db.open();
+  reportDB.reports.add(report);
+
+  const oldDataCount = await db.reports
+    .where('PLAY_ON')
+    .below(getFormattedDate(addMinutes(new Date(), -10)))
+    .count();
+
+  if (oldDataCount > 0) {
+    reportAll();
+  }
 });
 
 const initPlayerPlaylist = (player, playlist, screen) => {
@@ -144,6 +183,12 @@ const setDeviceConfig = deviceConfig => {
     tr.appendChild(td);
     parentNode.appendChild(tr);
   }
+};
+
+const reportAll = async () => {
+  reports = await db.reports.toArray();
+  postReport(player.deviceId, reports);
+  db.reports.clear();
 };
 
 function getTargetInfo() {
