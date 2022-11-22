@@ -19,17 +19,29 @@ const getApiResponses = deviceId => {
       const screen = rad.device_code;
       const { code, message, device_id, ...pos } = position;
 
-      videoList = rad.items.map(v => {
+      playlist = rad.items.map(v => {
         return {
           sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
           isHivestack: v.HIVESTACK_YN,
           runningTime: v.RUNNING_TIME,
         };
       });
+      videoList = rad.items.map((v, index) => {
+        return {
+          index: index + 1,
+          type: v.TYP,
+          ad: v.D_FILE_NAME,
+          runningTime: v.RUNNING_TIME,
+          start: new Date(v.START_DT).toLocaleDateString(),
+          end: new Date(v.END_DT).toLocaleDateString(),
+        };
+      });
+
       player.deviceId = deviceId;
       console.log('pos', pos);
+      appendVideoList(videoList);
       initPlayerUi(pos);
-      initPlayerPlaylist(player, videoList, screen); // response.data.items[]
+      initPlayerPlaylist(player, playlist, screen); // response.data.items[]
     })
     .catch(error => {
       console.log(error);

@@ -105,6 +105,19 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   player.play();
 };
 
+const appendVideoList = videoList => {
+  const parentNode = document.querySelector('#video-body');
+  videoList.forEach(row => {
+    const tr = document.createElement('tr');
+    Object.values(row).forEach(value => {
+      td = document.createElement('td');
+      td.innerText = value;
+      tr.appendChild(td);
+    });
+    parentNode.appendChild(tr);
+  });
+};
+
 function getTargetInfo() {
   let _refTimestamp =
     new Date(new Date().toDateString()).getTime() + 6 * 60 * 60 * 1000; // 06시 시작 기준
