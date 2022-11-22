@@ -87,7 +87,31 @@
 
     <!-- videos -->
     <div class="videos container grey-text text-darken-1">
-      <h5 class="center">Video List</h5>
+      <div class="row">
+        <div class="col s8">
+          <h5 class="center">비디오 목록</h5>
+          <table>
+            <thead>
+              <tr>
+                <th>순번</th>
+                <th>편성종류</th>
+                <th>광고</th>
+                <th>재생시간</th>
+                <th>시작일자</th>
+                <th>종료일자</th>
+              </tr>
+            </thead>
+
+            <tbody id="video-body"></tbody>
+          </table>
+        </div>
+        <div class="col s4">
+          <h5 class="center">설정 정보</h5>
+          <table>
+            <tbody id="device-config"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <!-- <div class="center">
