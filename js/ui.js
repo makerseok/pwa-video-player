@@ -1,3 +1,13 @@
+const deviceConfigMapping = {
+  device_name: '디바이스명',
+  location: '장소',
+  remark: 'Remark',
+  top: 'top',
+  left: 'left',
+  height: 'height',
+  width: 'width',
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   // nav menu
   const menus = document.querySelectorAll('.side-menu');
@@ -105,17 +115,35 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   player.play();
 };
 
+const createElementWithInnerText = (tag, text) => {
+  const element = document.createElement(tag);
+  element.innerText = text;
+
+  return element;
+};
+
 const appendVideoList = videoList => {
   const parentNode = document.querySelector('#video-body');
   videoList.forEach(row => {
     const tr = document.createElement('tr');
     Object.values(row).forEach(value => {
-      td = document.createElement('td');
-      td.innerText = value;
+      td = createElementWithInnerText('td', value);
       tr.appendChild(td);
     });
     parentNode.appendChild(tr);
   });
+};
+
+const setDeviceConfig = deviceConfig => {
+  const parentNode = document.querySelector('#device-config');
+  for (const prop in deviceConfig) {
+    const tr = document.createElement('tr');
+    th = createElementWithInnerText('th', deviceConfigMapping[prop]);
+    td = createElementWithInnerText('td', deviceConfig[prop]);
+    tr.appendChild(th);
+    tr.appendChild(td);
+    parentNode.appendChild(tr);
+  }
 };
 
 function getTargetInfo() {

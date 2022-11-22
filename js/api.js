@@ -1,6 +1,7 @@
 const BASE_URL =
   'https://g575dfbc1dbf538-cms.adb.ap-seoul-1.oraclecloudapps.com/ords/podo/v1/podo/';
 const COMPANY_ID = '5CAE46D0460AFC9035AFE9AE32CD146539EDF83B';
+const DEVICE_URL = 'devices';
 const POSITION_URL = 'devices/position';
 const RADS_URL = 'rads';
 const EADS_URL = 'eads';
@@ -13,11 +14,12 @@ const getApiResponses = deviceId => {
     auth: COMPANY_ID,
     device_id: deviceId,
   };
-  endpoint = [BASE_URL + RADS_URL, BASE_URL + POSITION_URL];
+  endpoint = [BASE_URL + RADS_URL, BASE_URL + DEVICE_URL];
   Promise.all(endpoint.map(url => axios.get(url, { headers })))
-    .then(([{ data: rad }, { data: position }]) => {
+    .then(([{ data: rad }, { data: device }]) => {
       const screen = rad.device_code;
-      const { code, message, device_id, ...pos } = position;
+      const { code, message, device_id, ...deviceInfo } = device;
+      const { device_name, location, remark, ...pos } = deviceInfo;
 
       playlist = rad.items.map(v => {
         return {
@@ -37,9 +39,9 @@ const getApiResponses = deviceId => {
         };
       });
 
-      player.deviceId = deviceId;
       console.log('pos', pos);
       appendVideoList(videoList);
+      setDeviceConfig(deviceInfo);
       initPlayerUi(pos);
       initPlayerPlaylist(player, playlist, screen); // response.data.items[]
     })
