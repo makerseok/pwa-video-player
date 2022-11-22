@@ -37,12 +37,12 @@ const getApiResponses = deviceId => {
 };
 
 const getUrlFromHS = async (screen, retry = 0) => {
-  let result = {};
+  let hivestackInfo = {};
 
   const HS_URL = `https://uat.hivestack.com/nirvana/api/v1/units/schedulevast/${screen}?apikey=${HS_API_KEY}`;
   if (retry > 9) {
-    result.success = false;
-    return result;
+    hivestackInfo.success = false;
+    return hivestackInfo;
   }
   const response = await axios.get(HS_URL);
 
@@ -50,16 +50,16 @@ const getUrlFromHS = async (screen, retry = 0) => {
   const media = $xml.getElementsByTagName('MediaFile').item(0);
   const report = $xml.getElementsByTagName('Impression').item(0);
   if (!media) {
-    result = await getUrlFromHS(screen, retry + 1);
+    hivestackInfo = await getUrlFromHS(screen, retry + 1);
   } else if (media.getAttribute('type') !== 'video/mp4') {
-    result = await getUrlFromHS(screen, retry + 1);
+    hivestackInfo = await getUrlFromHS(screen, retry + 1);
   } else {
-    result.success = true;
-    result.videoUrl = media.textContent.trim();
-    result.reportUrl = report.textContent.trim();
+    hivestackInfo.success = true;
+    hivestackInfo.videoUrl = media.textContent.trim();
+    hivestackInfo.reportUrl = report.textContent.trim();
   }
-  console.log(result);
-  return result;
+  console.log(hivestackInfo);
+  return hivestackInfo;
 };
 
 const postPlayerUi = (deviceId, position) => {

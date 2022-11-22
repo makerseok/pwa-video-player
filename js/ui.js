@@ -74,15 +74,12 @@ player.on('play', async function () {
   const currentIdx = this.playlist.currentIndex();
   const targetIdx = (currentIdx + 1) % playlist.length;
 
-  if (playlist[currentIdx].reportUrl) {
-    axios.get(playlist[currentIdx].reportUrl);
-  }
-
   if (playlist[targetIdx].isHivestack === 'Y') {
-    const result = await getUrlFromHS(this.screen);
-    if (result.success) {
-      playlist[targetIdx].sources[0].src = result.videoUrl;
-      playlist[targetIdx].reportUrl = result.reportUrl;
+    const hivestackInfo = await getUrlFromHS(this.screen);
+    if (hivestackInfo.success) {
+      playlist[targetIdx].sources[0].src = hivestackInfo.videoUrl;
+      playlist[targetIdx].reportUrl = hivestackInfo.reportUrl;
+      playlist[targetIdx].report.HIVESTACK_URL = hivestackInfo.videoUrl;
     } else {
       playlist.splice(targetIdx, 1);
     }
