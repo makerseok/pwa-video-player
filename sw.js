@@ -1,5 +1,5 @@
-const staticCashName = 'site-static-v10';
-const dynamicCasheName = 'site-dynamic-v10';
+const staticCashName = 'site-static-v13';
+const dynamicCasheName = 'site-dynamic-v13';
 const assets = [
   '/pwa-video-player/',
   '/pwa-video-player/index.html',

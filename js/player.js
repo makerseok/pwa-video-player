@@ -38,34 +38,59 @@ player.ready(function () {
 
 player.on('loadeddata', async function () {
   const playlist = this.playlist();
-  const currentIdx = this.playlist.currentIndex();
-  const targetIdx = (currentIdx + 1) % playlist.length;
+  const currentIndex = this.playlist.currentIndex();
+  const nextIndex = this.playlist.nextIndex();
+  const previousIndex = this.playlist.previousIndex();
 
-  if (playlist[targetIdx].isHivestack === 'Y') {
+  if (playlist[nextIndex].isHivestack === 'Y') {
     const hivestackInfo = await getUrlFromHS(this.screen);
     console.log('hivestackInfo', hivestackInfo);
     if (hivestackInfo.success) {
-      playlist[targetIdx].sources[0].src = hivestackInfo.videoUrl;
-      playlist[targetIdx].reportUrl = hivestackInfo.reportUrl;
-      playlist[targetIdx].report.HIVESTACK_URL = hivestackInfo.videoUrl;
+      playlist[nextIndex].sources[0].src = hivestackInfo.videoUrl;
+      playlist[nextIndex].reportUrl = hivestackInfo.reportUrl;
+      playlist[nextIndex].report.HIVESTACK_URL = hivestackInfo.videoUrl;
     }
   }
+  if (playlist[previousIndex].isHivestack === 'Y') {
+    playlist[previousIndex].sources[0].src = null;
+    playlist[previousIndex].reportUrl = null;
+    playlist[previousIndex].report.HIVESTACK_URL = null;
+  }
 
-  this.playlist(playlist, currentIdx);
+  playlist[currentIndex].report.PLAY_ON = getFormattedDate(new Date());
+
+  this.playlist(playlist, currentIndex);
 });
 
 player.on('ended', async function () {
   const playlist = this.playlist();
-  const currentIdx = this.playlist.currentIndex();
+  const currentIndex = this.playlist.currentIndex();
+  const nextIndex = this.playlist.nextIndex();
+  const currentItem = playlist[currentIndex];
 
-  if (playlist[currentIdx].reportUrl) {
-    axios.get(playlist[currentIdx].reportUrl);
+  if (playlist[nextIndex].sources[0].src) {
+    player.playlist.next();
+  } else {
+    const distances = playlist.map((e, idx) => {
+      return { distance: idx - currentIndex, idx: idx };
+    });
+    const sortedDistances = distances
+      .filter(e => e.distance > 0)
+      .concat(distances.filter(e => e.distance < 0));
+
+    for (let i = 0; i < sortedDistances.length; i++) {
+      if (playlist[sortedDistances[i].idx].sources[0].src) {
+        player.playlist.currentItem(sortedDistances[i].idx);
+        console.log('go to', sortedDistances[i].idx);
+        break;
+      }
+    }
   }
-  let report = playlist[currentIdx].report;
 
-  report.PLAY_ON = getFormattedDate(new Date());
-
-  // const currentTenUnitMinute = Math.floor(new Date().getMinutes() / 10) * 10;
+  if (currentItem.reportUrl) {
+    axios.get(currentItem.reportUrl);
+  }
+  let report = currentItem.report;
 
   const reportDB = await db.open();
   reportDB.reports.add(report);
