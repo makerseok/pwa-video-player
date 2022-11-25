@@ -92,6 +92,7 @@ player.on('loadeddata', async function () {
 
   if (playlist[targetIdx].isHivestack === 'Y') {
     const hivestackInfo = await getUrlFromHS(this.screen);
+    console.log('hivestackInfo', hivestackInfo);
     if (hivestackInfo.success) {
       playlist[targetIdx].sources[0].src = hivestackInfo.videoUrl;
       playlist[targetIdx].reportUrl = hivestackInfo.reportUrl;

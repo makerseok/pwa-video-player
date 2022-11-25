@@ -82,7 +82,7 @@ const getUrlFromHS = async (screen, retry = 0) => {
     hivestackInfo.videoUrl = media.textContent.trim();
     hivestackInfo.reportUrl = report.textContent.trim();
   }
-  console.log(hivestackInfo);
+
   return hivestackInfo;
 };
 
