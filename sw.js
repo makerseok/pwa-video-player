@@ -1,5 +1,6 @@
-const staticCashName = 'site-static-v13';
-const dynamicCasheName = 'site-dynamic-v13';
+const staticCashName = 'site-static-v26';
+const dynamicCasheName = 'site-dynamic-v26';
+const videoCacheName = 'site-video-v3';
 const assets = [
   '/pwa-video-player/',
   '/pwa-video-player/index.html',
@@ -47,7 +48,12 @@ self.addEventListener('activate', event => {
       // console.log(keys);
       return Promise.all(
         keys
-          .filter(key => key !== staticCashName && key !== dynamicCasheName)
+          .filter(
+            key =>
+              key !== staticCashName &&
+              key !== dynamicCasheName &&
+              key !== videoCacheName,
+          )
           .map(key => caches.delete(key)),
       );
     }),

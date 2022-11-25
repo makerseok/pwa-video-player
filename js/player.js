@@ -1,4 +1,4 @@
-const videoCacheName = 'site-video-v16';
+const videoCacheName = 'site-video-v3';
 const did = 1;
 
 const cacheVideo = async url => {
@@ -6,6 +6,35 @@ const cacheVideo = async url => {
   fetch(url).then(response => {
     cache.put(url, response);
   });
+};
+
+const deleteCachedVideo = async urls => {
+  const cachedVideo = await caches.open(videoCacheName);
+  const videoUrls = await cachedVideo.keys();
+
+  videoUrls.forEach(async url => {
+    if (!urls.includes(url)) {
+      await cache.delete(url);
+    }
+  });
+};
+
+const cacheVideoAll = async urls => {
+  const reportDB = await db.open();
+
+  const oldCachesCount = await db.caches
+    .where('cachedOn')
+    .above(getFormattedDate(new Date(new Date().toLocaleDateString())))
+    .count();
+
+  if (oldCachesCount === 0) {
+    await deleteCachedVideo(urls);
+
+    urls.forEach(async url => {
+      await cacheVideo(url).then(console.log('cached', url));
+    });
+    await reportDB.caches.add({ cachedOn: getFormattedDate(new Date()) });
+  }
 };
 
 const addMinutes = (date, min) => {
@@ -111,6 +140,7 @@ const initPlayerPlaylist = (player, playlist, screen) => {
     return parseInt(v.runningTime) * 1000;
   });
   player.screen = screen;
+  player.primaryPlaylist = playlist;
   player.playlist(playlist);
   player.playlist.repeat(true);
 
@@ -119,6 +149,10 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   player.playlist.currentItem(idx);
   player.currentTime(sec);
   player.play();
+
+  urls = playlist.map(v => v.sources[0].src).filter(src => src);
+
+  cacheVideoAll(urls);
 };
 
 function getTargetInfo() {
