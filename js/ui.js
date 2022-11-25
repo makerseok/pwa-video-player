@@ -85,7 +85,7 @@ player.ready(function () {
   this.volume(0);
 });
 
-player.on('play', async function () {
+player.on('loadeddata', async function () {
   const playlist = this.playlist();
   const currentIdx = this.playlist.currentIndex();
   const targetIdx = (currentIdx + 1) % playlist.length;
