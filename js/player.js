@@ -15,7 +15,7 @@ const addMinutes = (date, min) => {
 };
 
 const getFormattedDate = date => {
-  const d = date.toISOString().split('T')[0].replaceAll('-', '');
+  const d = date.toLocaleString().split('. ').slice(0, 3).join('');
   const time = date.toTimeString().split(' ')[0];
 
   return `${d} ${time}`;
