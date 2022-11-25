@@ -32,7 +32,7 @@ const getApiResponses = deviceId => {
             DEVICE_ID: deviceId,
             FILE_ID: v.FILE_ID,
             HIVESTACK_YN: v.HIVESTACK_YN,
-            HIVESTACK_URL: v.VIDEO_URL,
+            // HIVESTACK_URL: v.VIDEO_URL,
             PLAY_ON: null,
           },
         };
