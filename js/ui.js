@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const did = 1;
 
+const playerDOM = document.querySelector('#modal-player');
+
 const observer = new ResizeObserver(entries => {
   for (let entry of entries) {
     const { width, height } = entry.contentRect;
