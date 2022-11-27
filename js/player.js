@@ -135,7 +135,6 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   player.playlist.repeat(true);
 
   let [idx, sec] = getTargetInfo();
-  console.log(idx, sec);
   player.playlist.currentItem(idx);
   player.currentTime(sec);
   player.play();
@@ -158,7 +157,6 @@ function getTargetInfo() {
   let targetTimestamp = (curTimestamp - refTimestamp) % totalTimestamp;
 
   for (let i = 0; i < totalRT.length; i++) {
-    console.log([i, targetTimestamp / 1000]);
     if (targetTimestamp < totalRT[i]) {
       return [i, targetTimestamp / 1000];
     } else {

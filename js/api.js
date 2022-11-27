@@ -49,7 +49,6 @@ const getApiResponses = deviceId => {
         };
       });
 
-      console.log('pos', pos);
       appendVideoList(videoList);
       setDeviceConfig(deviceInfo);
       initPlayerUi(pos);
