@@ -86,7 +86,7 @@ const getUrlFromHS = async (screen, retry = 0) => {
   return hivestackInfo;
 };
 
-const postPlayerUi = (deviceId, position) => {
+const postPlayerUi = async (deviceId, position) => {
   headers = {
     auth: COMPANY_ID,
     device_id: deviceId,
@@ -94,16 +94,18 @@ const postPlayerUi = (deviceId, position) => {
 
   axios
     .post(BASE_URL + POSITION_URL, position, { headers })
-    .then(console.log('position posted!', position));
+    .then(console.log('position posted!', position))
+    .catch(error => console.log(error));
 };
 
-const postReport = (deviceId, data) => {
+const postReport = async (deviceId, data) => {
   headers = {
     auth: COMPANY_ID,
     device_id: deviceId,
   };
-
-  axios
-    .post(BASE_URL + REPORT_URL, data, { headers })
-    .then(console.log('reports posted!', data));
+  try {
+    return await axios.post(BASE_URL + REPORT_URL, data, { headers });
+  } catch (error) {
+    return error;
+  }
 };
