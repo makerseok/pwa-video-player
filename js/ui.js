@@ -20,7 +20,6 @@ const observer = new ResizeObserver(entries => {
   for (let entry of entries) {
     const { width, height } = entry.contentRect;
     $('.video-js').width(width).height(height);
-    console.log('observer', width, height);
   }
 });
 
@@ -88,6 +87,11 @@ const setDeviceConfig = deviceConfig => {
 
 const reportAll = async () => {
   reports = await db.reports.toArray();
-  postReport(player.deviceId, reports);
-  db.reports.clear();
+  const result = await postReport(player.deviceId, reports);
+  if (result?.status === 200) {
+    console.log('reports posted!', reports);
+    db.reports.clear();
+  } else {
+    console.log('report post failed!', result);
+  }
 };
