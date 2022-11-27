@@ -1,6 +1,6 @@
-const staticCashName = 'site-static-v26';
-const dynamicCasheName = 'site-dynamic-v26';
-const videoCacheName = 'site-video-v3';
+const STATIC_CACHE_NAME = 'site-static-v33';
+const DYNAMIC_CACHE_NAME = 'site-dynamic-v33';
+const VIDEO_CACHE_NAME = 'site-video-v3';
 const assets = [
   '/pwa-video-player/',
   '/pwa-video-player/index.html',
@@ -33,7 +33,7 @@ const limitCacheSize = (name, size) => {
 self.addEventListener('install', event => {
   console.log('service worker has been installed');
   event.waitUntil(
-    caches.open(staticCashName).then(cache => {
+    caches.open(STATIC_CACHE_NAME).then(cache => {
       console.log('caching shell assets');
       cache.addAll(assets);
     }),
@@ -50,9 +50,9 @@ self.addEventListener('activate', event => {
         keys
           .filter(
             key =>
-              key !== staticCashName &&
-              key !== dynamicCasheName &&
-              key !== videoCacheName,
+              key !== STATIC_CACHE_NAME &&
+              key !== DYNAMIC_CACHE_NAME &&
+              key !== VIDEO_CACHE_NAME,
           )
           .map(key => caches.delete(key)),
       );
@@ -63,32 +63,49 @@ self.addEventListener('activate', event => {
 // fetch event
 self.addEventListener('fetch', event => {
   // console.log('fetch event', event);
-  if (event.request.method != 'GET') return;
+  if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches
-      .match(event.request)
-      .then(cacheRes => {
-        return (
-          cacheRes ||
-          fetch(event.request).then(async fetchRes => {
-            if (
-              event.request.destination !== 'video' &&
-              event.request.url.indexOf('hivestack.com') > -1 &&
-              event.request.url.indexOf('ords/podo') > -1
-            ) {
-              const cache = await caches.open(dynamicCasheName);
-              await cache.put(event.request.url, fetchRes.clone());
-              limitCacheSize(dynamicCasheName, 15);
-            }
-            return fetchRes;
-          })
-        );
-      })
-      .catch(() => {
-        // if (event.request.url.indexOf('.html') > -1) {
-        if (event.request.destination === 'document') {
-          return caches.match('/pwa-video-player/pages/fallback.html');
-        }
-      }),
+    (async () => {
+      const cachedResponse = await caches.match(event.request);
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+
+      if (event.request.destination === 'video') {
+        return fetchVideo(event.request);
+      }
+      if (
+        event.request.url.indexOf('hivestack.com') === -1 &&
+        event.request.url.indexOf('ords/podo') === -1
+      ) {
+        return fetchDynamic(event.request);
+      }
+      return fetch(event.request);
+    })(),
   );
 });
+
+const fetchDynamic = async request => {
+  const response = await fetch(request);
+  cacheDynamic(request.url, response.clone());
+  return response;
+};
+
+const cacheDynamic = async (url, response) => {
+  const cache = await caches.open(DYNAMIC_CACHE_NAME);
+  await cache.put(url, response);
+  limitCacheSize(DYNAMIC_CACHE_NAME, 15);
+};
+
+const cacheVideo = async (url, response) => {
+  const cache = await caches.open(VIDEO_CACHE_NAME);
+  await cache.put(url, response);
+};
+
+const fetchVideo = async request => {
+  const response = await fetch(request);
+  cacheVideo(request.url, response.clone()).then(() => {
+    console.log('video cached', request.url);
+  });
+  return response;
+};

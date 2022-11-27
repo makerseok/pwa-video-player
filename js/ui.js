@@ -28,7 +28,7 @@ observer.observe(playerDOM);
 // popup 노출
 const initPlayerUi = position => {
   const { width, height, ...offset } = position;
-  console.log(position);
+
   $(playerDOM)
     .offset(offset)
     .width(width)

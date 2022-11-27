@@ -1,15 +1,8 @@
-const videoCacheName = 'site-video-v3';
+const VIDEO_CACHE_NAME = 'site-video-v3';
 const did = 1;
 
-const cacheVideo = async url => {
-  const cache = await caches.open(videoCacheName);
-  fetch(url).then(response => {
-    cache.put(url, response);
-  });
-};
-
 const deleteCachedVideo = async urls => {
-  const cachedVideo = await caches.open(videoCacheName);
+  const cachedVideo = await caches.open(VIDEO_CACHE_NAME);
   const videoUrls = await cachedVideo.keys();
 
   videoUrls.forEach(async url => {
@@ -19,9 +12,7 @@ const deleteCachedVideo = async urls => {
   });
 };
 
-const cacheVideoAll = async urls => {
-  const reportDB = await db.open();
-
+const fetchVideoAll = async urls => {
   const oldCachesCount = await db.caches
     .where('cachedOn')
     .above(getFormattedDate(new Date(new Date().toLocaleDateString())))
@@ -29,11 +20,10 @@ const cacheVideoAll = async urls => {
 
   if (oldCachesCount === 0) {
     await deleteCachedVideo(urls);
-
-    urls.forEach(async url => {
-      await cacheVideo(url).then(console.log('cached', url));
+    Promise.all(urls.map(url => axios.get(url))).then(async () => {
+      const reportDB = await db.open();
+      reportDB.caches.add({ cachedOn: getFormattedDate(new Date()) });
     });
-    await reportDB.caches.add({ cachedOn: getFormattedDate(new Date()) });
   }
 };
 
@@ -145,14 +135,13 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   player.playlist.repeat(true);
 
   let [idx, sec] = getTargetInfo();
-  console.log(idx, sec);
   player.playlist.currentItem(idx);
   player.currentTime(sec);
   player.play();
 
   urls = playlist.map(v => v.sources[0].src).filter(src => src);
 
-  cacheVideoAll(urls);
+  fetchVideoAll(urls);
 };
 
 function getTargetInfo() {
@@ -168,7 +157,6 @@ function getTargetInfo() {
   let targetTimestamp = (curTimestamp - refTimestamp) % totalTimestamp;
 
   for (let i = 0; i < totalRT.length; i++) {
-    console.log([i, targetTimestamp / 1000]);
     if (targetTimestamp < totalRT[i]) {
       return [i, targetTimestamp / 1000];
     } else {
