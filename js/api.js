@@ -63,7 +63,7 @@ const getUrlFromHS = async (screen, retry = 0) => {
   let hivestackInfo = {};
 
   const HS_URL = `https://uat.hivestack.com/nirvana/api/v1/units/schedulevast/${screen}?apikey=${HS_API_KEY}`;
-  if (retry > 9) {
+  if (retry > 2) {
     hivestackInfo.success = false;
     return hivestackInfo;
   }
