@@ -6,9 +6,9 @@ const deleteCachedVideo = async urls => {
   const videoUrls = await cachedVideo.keys();
 
   videoUrls.forEach(async url => {
-    if (!urls.includes(url)) {
-      await cache.delete(url);
-    }
+    // if (!urls.includes(url)) {
+    await cachedVideo.delete(url);
+    // }
   });
 };
 
@@ -20,9 +20,13 @@ const fetchVideoAll = async urls => {
 
   if (oldCachesCount === 0) {
     await deleteCachedVideo(urls);
-    Promise.all(urls.map(url => axios.get(url))).then(async () => {
+    Promise.all(urls.map(url => axios.get(url)))
+      .then(async () => {
       const reportDB = await db.open();
-      reportDB.caches.add({ cachedOn: getFormattedDate(new Date()) });
+        await reportDB.caches.add({ cachedOn: getFormattedDate(new Date()) });
+      })
+      .catch(error => {
+        console.log('error when fetchVideoAll', error);
     });
   }
 };

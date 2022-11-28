@@ -71,7 +71,7 @@ self.addEventListener('fetch', event => {
         return cachedResponse;
       }
 
-      if (event.request.destination === 'video') {
+      if (event.request.url.indexOf('.mp4') > -1) {
         return fetchVideo(event.request);
       }
       if (
@@ -87,7 +87,7 @@ self.addEventListener('fetch', event => {
 
 const fetchDynamic = async request => {
   const response = await fetch(request);
-  cacheDynamic(request.url, response.clone());
+  await cacheDynamic(request.url, response.clone());
   return response;
 };
 
@@ -104,8 +104,9 @@ const cacheVideo = async (url, response) => {
 
 const fetchVideo = async request => {
   const response = await fetch(request);
-  cacheVideo(request.url, response.clone()).then(() => {
+  if (response.status !== 206) {
+    await cacheVideo(request.url, response.clone());
     console.log('video cached', request.url);
-  });
+  }
   return response;
 };
