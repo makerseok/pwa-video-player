@@ -1,4 +1,4 @@
-const VIDEO_CACHE_NAME = 'site-video-v3';
+const VIDEO_CACHE_NAME = 'site-video-v4';
 const did = 1;
 
 const deleteCachedVideo = async urls => {
@@ -20,13 +20,9 @@ const fetchVideoAll = async urls => {
 
   if (oldCachesCount === 0) {
     await deleteCachedVideo(urls);
-    Promise.all(urls.map(url => axios.get(url)))
-      .then(async () => {
+    Promise.all(urls.map(url => axios.get(url))).finally(async () => {
       const reportDB = await db.open();
-        await reportDB.caches.add({ cachedOn: getFormattedDate(new Date()) });
-      })
-      .catch(error => {
-        console.log('error when fetchVideoAll', error);
+      await reportDB.caches.add({ cachedOn: getFormattedDate(new Date()) });
     });
   }
 };
@@ -85,6 +81,21 @@ player.on('loadeddata', async function () {
   this.playlist(playlist, currentIndex);
 });
 
+let isFetched = false;
+
+player.on('progress', function () {
+  if (this.bufferedPercent() === 1 && !isFetched) {
+    const urls = this.playlist()
+      .map(v => v.sources[0].src)
+      .filter(src => src);
+
+    const deduplicatedUrls = [...new Set(urls)];
+
+    fetchVideoAll(deduplicatedUrls);
+    isFetched = true;
+  }
+});
+
 player.on('ended', async function () {
   const playlist = this.playlist();
   const currentIndex = this.playlist.currentIndex();
@@ -127,10 +138,6 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   player.playlist.currentItem(idx);
   player.currentTime(sec);
   player.play();
-
-  urls = playlist.map(v => v.sources[0].src).filter(src => src);
-
-  fetchVideoAll(urls);
 };
 
 async function addReport(currentItem) {
