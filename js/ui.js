@@ -36,7 +36,7 @@ const initPlayerUi = position => {
     .draggable({
       cursor: 'crosshair',
       stop: function (event, ui) {
-        position = {
+        const position = {
           width: ui.helper.width(),
           height: ui.helper.height(),
           ...ui.offset,
@@ -46,7 +46,7 @@ const initPlayerUi = position => {
     })
     .resizable({
       stop: function (event, ui) {
-        position = {
+        const position = {
           ...ui.size,
           ...ui.position,
         };
@@ -77,8 +77,8 @@ const setDeviceConfig = deviceConfig => {
   const parentNode = document.querySelector('#device-config');
   for (const prop in deviceConfig) {
     const tr = document.createElement('tr');
-    th = createElementWithInnerText('th', deviceConfigMapping[prop]);
-    td = createElementWithInnerText('td', deviceConfig[prop]);
+    const th = createElementWithInnerText('th', deviceConfigMapping[prop]);
+    const td = createElementWithInnerText('td', deviceConfig[prop]);
     tr.appendChild(th);
     tr.appendChild(td);
     parentNode.appendChild(tr);

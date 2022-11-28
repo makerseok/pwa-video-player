@@ -11,18 +11,18 @@ const HS_API_KEY =
   '$2b$12$y4OZHQji3orEPdy2FtQJye:8f3bc93a-3b31-4323-b1a0-fd20584d9de4';
 
 const getApiResponses = deviceId => {
-  headers = {
+  const headers = {
     auth: COMPANY_ID,
     device_id: deviceId,
   };
-  endpoint = [BASE_URL + RADS_URL, BASE_URL + DEVICE_URL];
+  const endpoint = [BASE_URL + RADS_URL, BASE_URL + DEVICE_URL];
   Promise.all(endpoint.map(url => axios.get(url, { headers })))
     .then(([{ data: rad }, { data: device }]) => {
       const screen = rad.device_code;
       const { code, message, device_id, ...deviceInfo } = device;
       const { device_name, location, remark, ...pos } = deviceInfo;
 
-      playlist = rad.items.map(v => {
+      const playlist = rad.items.map(v => {
         return {
           sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
           isHivestack: v.HIVESTACK_YN,
@@ -38,7 +38,7 @@ const getApiResponses = deviceId => {
         };
       });
 
-      videoList = rad.items.map((v, index) => {
+      const videoList = rad.items.map((v, index) => {
         return {
           index: index + 1,
           type: v.TYP,
@@ -86,7 +86,7 @@ const getUrlFromHS = async (screen, retry = 0) => {
 };
 
 const postPlayerUi = async (deviceId, position) => {
-  headers = {
+  const headers = {
     auth: COMPANY_ID,
     device_id: deviceId,
   };
@@ -98,7 +98,7 @@ const postPlayerUi = async (deviceId, position) => {
 };
 
 const postReport = async (deviceId, data) => {
-  headers = {
+  const headers = {
     auth: COMPANY_ID,
     device_id: deviceId,
   };
