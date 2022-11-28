@@ -84,14 +84,3 @@ const setDeviceConfig = deviceConfig => {
     parentNode.appendChild(tr);
   }
 };
-
-const reportAll = async () => {
-  reports = await db.reports.toArray();
-  const result = await postReport(player.deviceId, reports);
-  if (result?.status === 200) {
-    console.log('reports posted!', reports);
-    db.reports.clear();
-  } else {
-    console.log('report post failed!', result);
-  }
-};

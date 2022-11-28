@@ -110,22 +110,7 @@ player.on('ended', async function () {
     }
   }
 
-  if (currentItem.reportUrl) {
-    axios.get(currentItem.reportUrl);
-  }
-  let report = currentItem.report;
-
-  const reportDB = await db.open();
-  reportDB.reports.add(report);
-
-  const oldDataCount = await db.reports
-    .where('PLAY_ON')
-    .below(getFormattedDate(addMinutes(new Date(), -10)))
-    .count();
-
-  if (oldDataCount > 0) {
-    reportAll();
-  }
+  addReport(currentItem);
 });
 
 const initPlayerPlaylist = (player, playlist, screen) => {
@@ -146,6 +131,39 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   urls = playlist.map(v => v.sources[0].src).filter(src => src);
 
   fetchVideoAll(urls);
+};
+
+async function addReport(currentItem) {
+  if (currentItem.reportUrl) {
+    axios.get(currentItem.reportUrl);
+  }
+  let report = currentItem.report;
+
+  console.log('report', report);
+  const reportDB = await db.open();
+  if (report.PLAY_ON) {
+    reportDB.reports.add(report);
+  }
+
+  const oldDataCount = await db.reports
+    .where('PLAY_ON')
+    .below(getFormattedDate(addMinutes(new Date(), -10)))
+    .count();
+
+  if (oldDataCount > 0) {
+    reportAll();
+  }
+}
+
+const reportAll = async () => {
+  reports = await db.reports.toArray();
+  const result = await postReport(player.deviceId, reports);
+  if (result?.status === 200) {
+    console.log('reports posted!', reports);
+    db.reports.clear();
+  } else {
+    console.log('report post failed!', result);
+  }
 };
 
 function getTargetInfo() {
