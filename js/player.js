@@ -34,10 +34,15 @@ const addMinutes = (date, min) => {
 };
 
 const getFormattedDate = date => {
-  const d = date.toLocaleString().split('. ').slice(0, 3).join('');
+  const yymmdd =
+    date.getFullYear() +
+    (date.getMonth() + 1 < 9
+      ? '0' + (date.getMonth() + 1)
+      : date.getMonth() + 1) +
+    (date.getDate() < 9 ? '0' + date.getDate() : date.getDate());
   const time = date.toTimeString().split(' ')[0];
 
-  return `${d} ${time}`;
+  return `${yymmdd} ${time}`;
 };
 
 let totalRT = [];
@@ -165,7 +170,7 @@ async function addReport(currentItem) {
 const reportAll = async () => {
   reports = await db.reports.toArray();
   const result = await postReport(player.deviceId, reports);
-  if (result.status === 200) {
+  if (result?.status === 200) {
     console.log('reports posted!', reports);
     db.reports.clear();
   } else {
