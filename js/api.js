@@ -41,9 +41,9 @@ const getApiResponses = deviceId => {
       const videoList = rad.items.map((v, index) => {
         return {
           index: index + 1,
-          type: v.TYP,
-          ad: v.D_FILE_NAME,
           runningTime: v.RUNNING_TIME,
+          ad: v.D_FILE_NAME,
+          type: v.TYP,
           start: new Date(v.START_DT).toLocaleDateString(),
           end: new Date(v.END_DT).toLocaleDateString(),
         };

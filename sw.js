@@ -1,4 +1,4 @@
-const STATIC_CACHE_NAME = 'site-static-v33';
+const STATIC_CACHE_NAME = 'site-static-v34';
 const DYNAMIC_CACHE_NAME = 'site-dynamic-v42';
 const VIDEO_CACHE_NAME = 'site-video-v4';
 const assets = [
