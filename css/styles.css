@@ -1,14 +1,19 @@
+/* font */
+html {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
 /* colours */
 :root {
-  --primary: #ffe9d2;
-  --secondary: #ffe1c4;
-  --title: #ff8816;
+  --primary: #212121;
+  --secondary: #b388ff;
+  --title: #b388ff;
 }
 
 /* layout styles */
 nav {
   background: var(--primary);
-  border-bottom: 10px solid var(--secondary);
+  border-bottom: 2px solid var(--secondary);
 }
 nav a {
   text-transform: uppercase;
@@ -19,6 +24,43 @@ nav a span {
 }
 nav .sidenav-trigger {
   margin: 0;
+}
+
+.videos {
+  margin-top: 2rem;
+}
+
+/* info */
+
+.info {
+  padding: 0px !important;
+}
+
+.info.video-info {
+  border-right: 1px solid var(--secondary);
+}
+
+@media only screen and (min-width: 993px) {
+  .info .info-table {
+    padding: 0px 3rem !important;
+  }
+}
+
+/* info title */
+.info .title {
+  padding-left: 3rem;
+  font-size: 2rem;
+  line-height: 4rem;
+}
+
+/* info table */
+.info.video-info .info-table thead {
+  font-size: 0.75rem;
+}
+
+.info.video-info .info-table td {
+  vertical-align: top;
+  height: 5rem;
 }
 
 /* modal popup styles */

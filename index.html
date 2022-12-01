@@ -5,6 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PWA Video Player</title>
+    <!-- font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;700&display=swap"
+      rel="stylesheet"
+    />
     <!-- materialize icons, css & js -->
     <link
       type="text/css"
@@ -56,7 +63,7 @@
     <script src="/pwa-video-player/js/axios.min.js"></script>
     <script src="/pwa-video-player/js/dexie.min.js"></script>
   </head>
-  <body class="grey lighten-4">
+  <body class="grey darken-4">
     <!-- top nav -->
     <nav class="z-depth-0">
       <div class="nav-wrapper container">
@@ -87,10 +94,10 @@
     </ul>
 
     <!-- videos -->
-    <div class="videos container grey-text text-darken-1">
-      <div class="row">
-        <div class="col s8">
-          <h5 class="center">비디오 목록</h5>
+    <div class="videos row grey-text text-lighten-4">
+      <div class="info video-info col s12 m8 l8">
+        <div class="title">비디오 목록</div>
+        <div class="info-table">
           <table>
             <thead>
               <tr>
@@ -106,8 +113,10 @@
             <tbody id="video-body"></tbody>
           </table>
         </div>
-        <div class="col s4">
-          <h5 class="center">설정 정보</h5>
+      </div>
+      <div class="info device-info col s12 m4 l4">
+        <div class="title">설정 정보</div>
+        <div class="info-table">
           <table>
             <tbody id="device-config"></tbody>
           </table>
