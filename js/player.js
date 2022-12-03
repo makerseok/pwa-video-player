@@ -33,6 +33,10 @@ const addMinutes = (date, min) => {
   return date;
 };
 
+const gethhMMss = date => {
+  return date.toTimeString().split(' ')[0];
+};
+
 const getFormattedDate = date => {
   const yymmdd =
     date.getFullYear().toString() +
@@ -41,9 +45,17 @@ const getFormattedDate = date => {
       : date.getMonth() + 1
     ).toString() +
     (date.getDate() < 9 ? '0' + date.getDate() : date.getDate()).toString();
-  const time = date.toTimeString().split(' ')[0];
+  const time = gethhMMss(date);
 
   return `${yymmdd} ${time}`;
+};
+
+const addHyphen = dateString => {
+  const addedDateString = dateString.replace(
+    /(\d{4})(\d{2})(\d{2})/g,
+    '$1-$2-$3',
+  );
+  return addedDateString;
 };
 
 let totalRT = [];
