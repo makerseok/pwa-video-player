@@ -35,11 +35,12 @@ const addMinutes = (date, min) => {
 
 const getFormattedDate = date => {
   const yymmdd =
-    date.getFullYear() +
+    date.getFullYear().toString() +
     (date.getMonth() + 1 < 9
       ? '0' + (date.getMonth() + 1)
-      : date.getMonth() + 1) +
-    (date.getDate() < 9 ? '0' + date.getDate() : date.getDate());
+      : date.getMonth() + 1
+    ).toString() +
+    (date.getDate() < 9 ? '0' + date.getDate() : date.getDate()).toString();
   const time = date.toTimeString().split(' ')[0];
 
   return `${yymmdd} ${time}`;
