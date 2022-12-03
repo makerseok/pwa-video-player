@@ -15,9 +15,13 @@ const getApiResponses = deviceId => {
     auth: COMPANY_ID,
     device_id: deviceId,
   };
-  const endpoint = [BASE_URL + RADS_URL, BASE_URL + DEVICE_URL];
+  const endpoint = [
+    BASE_URL + RADS_URL,
+    BASE_URL + EADS_URL,
+    BASE_URL + DEVICE_URL,
+  ];
   Promise.all(endpoint.map(url => axios.get(url, { headers })))
-    .then(([{ data: rad }, { data: device }]) => {
+    .then(([{ data: rad }, { data: ead }, { data: device }]) => {
       const screen = rad.device_code;
       const { code, message, device_id, ...deviceInfo } = device;
       const { device_name, location, remark, ...pos } = deviceInfo;
@@ -53,6 +57,31 @@ const getApiResponses = deviceId => {
       setDeviceConfig(deviceInfo);
       initPlayerUi(pos);
       initPlayerPlaylist(player, playlist, screen); // response.data.items[]
+
+      ead.items.forEach(v => {
+        const data = [
+          {
+            sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
+            isHivestack: v.HIVESTACK_YN,
+            runningTime: v.RUNNING_TIME,
+            report: {
+              COMPANY_ID: COMPANY_ID,
+              DEVICE_ID: deviceId,
+              FILE_ID: v.FILE_ID,
+              HIVESTACK_YN: v.HIVESTACK_YN,
+              PLAY_ON: null,
+            },
+          },
+        ];
+        console.log('schedule ead', v);
+        scheduleVideo(v.START_DT, data);
+        scheduleVideo(
+          v.END_DT ||
+            getFormattedDate(addMinutes(new Date(addHyphen(v.START_DT)), 30)),
+          player.primaryPlaylist,
+          true,
+        );
+      });
     })
     .catch(error => {
       console.log(error);

@@ -69,6 +69,7 @@ let player = videojs(document.querySelector('.video-js'), {
 player.ready(function () {
   console.log('player ready');
   this.deviceId = did;
+  this.jobs = [];
   getApiResponses(this.deviceId);
   this.volume(0);
 });
@@ -121,6 +122,9 @@ player.on('ended', async function () {
   const currentItem = playlist[currentIndex];
 
   if (playlist[nextIndex].sources[0].src) {
+    if (currentIndex === nextIndex) {
+      player.play();
+    }
     player.playlist.next();
   } else {
     const distances = playlist.map((e, idx) => {
@@ -212,3 +216,40 @@ function getTargetInfo() {
   }
   return [0, 0];
 }
+
+function cronVideo(date, playlist) {
+  const cronHour = date.getHours();
+  const cronMinute = date.getMinutes();
+  const cronSecond = date.getSeconds();
+  const job = Cron(
+    `${cronSecond} ${cronMinute} ${cronHour} * * *`,
+    { maxRuns: 1, context: playlist },
+    (_self, context) => {
+      console.log('cron context', context);
+      player.playlist(context, 0);
+    },
+  );
+  player.jobs.push(job);
+  console.log('scheduled on', date);
+}
+
+const scheduleVideo = async (startDate, playlist, isPrimary = false) => {
+  const hyphenStartDate = new Date(addHyphen(startDate));
+  const after2Min = addMinutes(new Date(), 2);
+  if (isPrimary) {
+    cronVideo(hyphenStartDate, playlist);
+  } else if (gethhMMss(hyphenStartDate) > gethhMMss(after2Min)) {
+    const urls = playlist.map(v => v.sources[0].src).filter(src => src);
+
+    const deduplicatedUrls = [...new Set(urls)];
+    Promise.all(
+      deduplicatedUrls.map(url => axios.get(url, { mode: 'no-cors' })),
+    )
+      .catch(error => {
+        console.log('error!');
+      })
+      .finally(() => {
+        cronVideo(hyphenStartDate, playlist);
+      });
+  }
+};
