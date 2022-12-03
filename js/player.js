@@ -171,7 +171,7 @@ async function addReport(currentItem) {
 const reportAll = async () => {
   reports = await db.reports.toArray();
   const result = await postReport(player.deviceId, reports);
-  if (result?.status === 200) {
+  if (result.status === 200) {
     console.log('reports posted!', reports);
     db.reports.clear();
   } else {
