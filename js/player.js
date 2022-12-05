@@ -176,7 +176,7 @@ async function addReport(currentItem) {
 
   const oldDataCount = await db.reports
     .where('PLAY_ON')
-    .below(getFormattedDate(addMinutes(new Date(), -10)))
+    .below(getFormattedDate(addMinutes(new Date(), -5)))
     .count();
 
   if (oldDataCount > 0) {
