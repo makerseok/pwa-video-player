@@ -8,12 +8,6 @@ const deviceConfigMapping = {
   width: 'width',
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-  // nav menu
-  const menus = document.querySelectorAll('.side-menu');
-  M.Sidenav.init(menus, { edge: 'right' });
-});
-
 const playerDOM = document.querySelector('#modal-player');
 
 const observer = new ResizeObserver(entries => {
