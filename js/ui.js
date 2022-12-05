@@ -61,8 +61,16 @@ const createElementWithInnerText = (tag, text) => {
   return element;
 };
 
+const removeAllChildNodes = parent => {
+  while (parent.firstChild) {
+    parent.removeChild(parent.firstChild);
+  }
+};
+
 const appendVideoList = videoList => {
   const parentNode = document.querySelector('#video-body');
+  removeAllChildNodes(parentNode);
+
   videoList.forEach(row => {
     const tr = document.createElement('tr');
     Object.values(row).forEach(value => {
@@ -75,6 +83,8 @@ const appendVideoList = videoList => {
 
 const setDeviceConfig = deviceConfig => {
   const parentNode = document.querySelector('#device-config');
+  removeAllChildNodes(parentNode);
+
   for (const prop in deviceConfig) {
     const tr = document.createElement('tr');
     const th = createElementWithInnerText('th', deviceConfigMapping[prop]);

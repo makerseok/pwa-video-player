@@ -1,6 +1,27 @@
 const VIDEO_CACHE_NAME = 'site-video-v4';
 const did = 1;
 
+const setDeviceId = async deviceId => {
+  const headers = {
+    auth: COMPANY_ID,
+    device_id: deviceId,
+  };
+
+  try {
+    const response = await axios.get(BASE_URL + DEVICE_URL, { headers });
+    if (response.status === 200) {
+      console.log(response);
+      await db.deviceIds.clear();
+      await db.deviceIds.add({ deviceId: response.data.device_id });
+
+      document.querySelector('#device-id').classList.remove('invalid');
+      getApiResponses(response.data.device_id);
+    }
+  } catch (error) {
+    document.querySelector('#device-id').classList.add('invalid');
+  }
+};
+
 const deleteCachedVideo = async urls => {
   const cachedVideo = await caches.open(VIDEO_CACHE_NAME);
   const videoUrls = await cachedVideo.keys();
@@ -66,11 +87,20 @@ let player = videojs(document.querySelector('.video-js'), {
   enableSourceset: true,
 });
 
-player.ready(function () {
+player.ready(async function () {
   console.log('player ready');
-  this.deviceId = did;
+
+  const deviceIds = await db.deviceIds.toArray();
+  if (deviceIds.length) {
+    const deviceId = deviceIds[deviceIds.length - 1].deviceId;
+
+    this.deviceId = deviceId;
+    getApiResponses(this.deviceId);
+  } else {
+    console.log('device id is not defined');
+  }
+
   this.jobs = [];
-  getApiResponses(this.deviceId);
   this.volume(0);
 });
 

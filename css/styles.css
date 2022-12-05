@@ -77,8 +77,28 @@ nav .sidenav-trigger {
   right: 1rem;
 }
 
+/* form */
+/* label color */
+.input-field label {
+  color: var(--secondary);
+}
+/* label focus color */
+.input-field input[type='text']:focus + label {
+  color: var(--secondary) !important;
+}
+/* label underline focus color */
+.input-field input[type='text']:focus {
+  border-bottom: 1px solid var(--secondary) !important;
+  box-shadow: 0 1px 0 0 var(--secondary) !important;
+}
+
+/* input device id */
+.input-device-id {
+  padding-left: 3rem;
+}
+
 /* form-styles */
-.add-btn {
+/* .add-btn {
   background: var(--title) !important;
 }
 input {
@@ -91,4 +111,4 @@ input {
 }
 form .input-field {
   margin-top: 30px;
-}
+} */

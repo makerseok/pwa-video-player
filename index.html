@@ -129,6 +129,26 @@
             <tbody id="device-config"></tbody>
           </table>
         </div>
+        <form action="#" class="input-device-id">
+          <div class="row valign-wrapper grey-text text-lighten-4">
+            <div class="input-field col s12 m8 l8">
+              <input
+                id="device-id"
+                type="text"
+                class="grey-text text-lighten-4"
+              />
+              <label for="device-id">Device ID</label>
+            </div>
+            <div class="col s12 m4 l4">
+              <a
+                class="btn deep-purple accent-1"
+                onclick="setDeviceId(document.getElementById('device-id').value)"
+              >
+                확인
+              </a>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
 
