@@ -64,6 +64,7 @@ const getApiResponses = deviceId => {
             sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
             isHivestack: v.HIVESTACK_YN,
             runningTime: v.RUNNING_TIME,
+            periodYn: v.PERIOD_YN,
             report: {
               COMPANY_ID: COMPANY_ID,
               DEVICE_ID: deviceId,
@@ -75,12 +76,9 @@ const getApiResponses = deviceId => {
         ];
         console.log('schedule ead', v);
         scheduleVideo(v.START_DT, data);
-        scheduleVideo(
-          v.END_DT ||
-            getFormattedDate(addMinutes(new Date(addHyphen(v.START_DT)), 30)),
-          player.primaryPlaylist,
-          true,
-        );
+        if (v.PERIOD_YN === 'Y') {
+          scheduleVideo(v.END_DT, player.primaryPlaylist, true);
+        }
       });
     })
     .catch(error => {

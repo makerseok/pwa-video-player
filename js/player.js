@@ -151,7 +151,9 @@ player.on('ended', async function () {
   const nextIndex = this.playlist.nextIndex();
   const currentItem = playlist[currentIndex];
 
-  if (playlist[nextIndex].sources[0].src) {
+  if (playlist[currentIndex].periodYn === 'Y') {
+    player.playlist(player.primaryPlaylist, 0);
+  } else if (playlist[nextIndex].sources[0].src) {
     if (currentIndex === nextIndex) {
       player.play();
     }
@@ -249,11 +251,12 @@ function getTargetInfo() {
 }
 
 function cronVideo(date, playlist) {
-  const cronHour = date.getHours();
-  const cronMinute = date.getMinutes();
-  const cronSecond = date.getSeconds();
+  // const cronHour = date.getHours();
+  // const cronMinute = date.getMinutes();
+  // const cronSecond = date.getSeconds();
   const job = Cron(
-    `${cronSecond} ${cronMinute} ${cronHour} * * *`,
+    // `${cronSecond} ${cronMinute} ${cronHour} * * *`,
+    date,
     { maxRuns: 1, context: playlist },
     (_self, context) => {
       console.log('cron context', context);
@@ -266,10 +269,9 @@ function cronVideo(date, playlist) {
 
 const scheduleVideo = async (startDate, playlist, isPrimary = false) => {
   const hyphenStartDate = new Date(addHyphen(startDate));
-  const after2Min = addMinutes(new Date(), 2);
   if (isPrimary) {
     cronVideo(hyphenStartDate, playlist);
-  } else if (gethhMMss(hyphenStartDate) > gethhMMss(after2Min)) {
+  } else {
     const urls = playlist.map(v => v.sources[0].src).filter(src => src);
 
     const deduplicatedUrls = [...new Set(urls)];
