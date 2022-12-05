@@ -189,6 +189,7 @@ const reportAll = async () => {
   const result = await postReport(player.deviceId, reports);
   if (result.status === 200) {
     console.log('reports posted!', reports);
+    M.toast({ html: 'reports posted!' });
     db.reports.clear();
   } else {
     console.log('report post failed!', result);
