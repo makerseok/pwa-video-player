@@ -174,8 +174,8 @@ player.on('ended', async function () {
   if (playlist[currentIndex].periodYn === 'N') {
     console.log('periodYn is N!');
     console.log('primary play list is', player.primaryPlaylist);
-    player.playlist(player.primaryPlaylist, 0);
-    player.play();
+    player.playlist(player.primaryPlaylist);
+    player.playlist.currentItem(0);
   } else if (playlist[nextIndex].sources[0].src) {
     if (currentIndex === nextIndex) {
       player.play();
@@ -298,7 +298,8 @@ function cronVideo(date, playlist) {
       { maxRuns: 1, context: playlist },
       (_self, context) => {
         console.log('cron context', context);
-        player.playlist(context, 0);
+        player.playlist(context);
+        player.playlist.currentItem(0);
       },
     );
     player.jobs.push(job);
