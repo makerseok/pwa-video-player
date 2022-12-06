@@ -49,9 +49,10 @@ const fetchVideoAll = async urls => {
 };
 
 const addMinutes = (date, min) => {
-  date.setMinutes(date.getMinutes() + min);
+  const addedDate = new Date(date);
+  addedDate.setMinutes(addedDate.getMinutes() + min);
 
-  return date;
+  return addedDate;
 };
 
 const gethhMMss = date => {
