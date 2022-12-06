@@ -89,6 +89,7 @@ let player = videojs(document.querySelector('.video-js'), {
   inactivityTimeout: 0,
   autoplay: true,
   enableSourceset: true,
+  controls: false,
 });
 
 player.ready(async function () {
