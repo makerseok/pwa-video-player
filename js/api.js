@@ -15,13 +15,9 @@ const getApiResponses = deviceId => {
     auth: player.companyId,
     device_id: deviceId,
   };
-  const endpoint = [
-    BASE_URL + RADS_URL,
-    BASE_URL + EADS_URL,
-    BASE_URL + DEVICE_URL,
-  ];
+  const endpoint = [BASE_URL + RADS_URL, BASE_URL + DEVICE_URL];
   Promise.all(endpoint.map(url => axios.get(url, { headers })))
-    .then(([{ data: rad }, { data: ead }, { data: device }]) => {
+    .then(([{ data: rad }, { data: device }]) => {
       const screen = rad.device_code;
       const { code, message, device_id, company_id, ...deviceInfo } = device;
       const { device_name, location, remark, ...pos } = deviceInfo;
@@ -57,8 +53,6 @@ const getApiResponses = deviceId => {
       setDeviceConfig(deviceInfo);
       initPlayerUi(pos);
       initPlayerPlaylist(player, playlist, screen); // response.data.items[]
-
-      scheduleEads(ead, deviceId);
     })
     .catch(error => {
       console.log(error);
