@@ -33,7 +33,8 @@ const initPlayerUi = position => {
         const position = {
           width: ui.helper.width(),
           height: ui.helper.height(),
-          ...ui.offset,
+          top: Math.max(ui.offset.top, 0),
+          left: Math.max(ui.offset.left, 0),
         };
         postPlayerUi(player.deviceId, position);
       },
@@ -42,7 +43,8 @@ const initPlayerUi = position => {
       stop: function (event, ui) {
         const position = {
           ...ui.size,
-          ...ui.position,
+          top: Math.max(ui.position.top, 0),
+          left: Math.max(ui.position.left, 0),
         };
         postPlayerUi(player.deviceId, position);
       },
