@@ -255,20 +255,36 @@ function getTargetInfo() {
 }
 
 function cronVideo(date, playlist) {
-  // const cronHour = date.getHours();
-  // const cronMinute = date.getMinutes();
-  // const cronSecond = date.getSeconds();
-  const job = Cron(
-    // `${cronSecond} ${cronMinute} ${cronHour} * * *`,
-    date,
-    { maxRuns: 1, context: playlist },
-    (_self, context) => {
-      console.log('cron context', context);
-      player.playlist(context, 0);
-    },
-  );
-  player.jobs.push(job);
-  console.log('scheduled on', date);
+  if (playlist.length === 1 && playlist[0].isHivestack === 'Y') {
+    const before2Min = addMinutes(date, -2);
+    const job = Cron(
+      before2Min,
+      { maxRuns: 1, context: playlist },
+      async (_self, context) => {
+        const hivestackInfo = await getUrlFromHS(player.screen);
+        console.log('scheduled hivestackInfo', hivestackInfo);
+        if (hivestackInfo.success) {
+          context[0].sources[0].src = hivestackInfo.videoUrl;
+          context[0].reportUrl = hivestackInfo.reportUrl;
+          context[0].report.HIVESTACK_URL = hivestackInfo.videoUrl;
+          cronVideo(date, context);
+        }
+      },
+    );
+    player.jobs.push(job);
+    console.log('scheduled on', before2Min);
+  } else {
+    const job = Cron(
+      date,
+      { maxRuns: 1, context: playlist },
+      (_self, context) => {
+        console.log('cron context', context);
+        player.playlist(context, 0);
+      },
+    );
+    player.jobs.push(job);
+    console.log('scheduled on', date);
+  }
 }
 
 const scheduleVideo = async (startDate, playlist, isPrimary = false) => {

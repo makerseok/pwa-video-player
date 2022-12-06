@@ -104,7 +104,7 @@ const cacheVideo = async (url, response) => {
 
 const fetchVideo = async request => {
   const response = await fetch(request);
-  if (response.status !== 206) {
+  if (response.status !== 206 && response.status !== 0) {
     await cacheVideo(request.url, response.clone());
     console.log('video cached', request.url);
   }
