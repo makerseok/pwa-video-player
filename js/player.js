@@ -310,7 +310,7 @@ const scheduleVideo = async (startDate, playlist, isPrimary = false) => {
   const hyphenStartDate = new Date(addHyphen(startDate));
   if (isPrimary) {
     cronVideo(hyphenStartDate, playlist);
-  } else {
+  } else if (hyphenStartDate > new Date()) {
     const urls = playlist.map(v => v.sources[0].src).filter(src => src);
 
     const deduplicatedUrls = [...new Set(urls)];
