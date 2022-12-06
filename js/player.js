@@ -223,7 +223,7 @@ async function addReport(currentItem) {
   console.log('report', report);
   const reportDB = await db.open();
   if (report.PLAY_ON) {
-    reportDB.reports.add(report);
+    await reportDB.reports.add(report);
   }
 
   const oldDataCount = await db.reports
