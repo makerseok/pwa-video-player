@@ -58,33 +58,7 @@ const getApiResponses = deviceId => {
       initPlayerUi(pos);
       initPlayerPlaylist(player, playlist, screen); // response.data.items[]
 
-      player.jobs.forEach(e => {
-        e.stop();
-      });
-      player.jobs = [];
-
-      ead.items.forEach(v => {
-        const data = [
-          {
-            sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
-            isHivestack: v.HIVESTACK_YN,
-            runningTime: v.RUNNING_TIME,
-            periodYn: v.PERIOD_YN,
-            report: {
-              COMPANY_ID: player.companyId,
-              DEVICE_ID: deviceId,
-              FILE_ID: v.FILE_ID,
-              HIVESTACK_YN: v.HIVESTACK_YN,
-              PLAY_ON: null,
-            },
-          },
-        ];
-        console.log('schedule ead', v);
-        scheduleVideo(v.START_DT, data);
-        if (v.PERIOD_YN === 'Y') {
-          scheduleVideo(v.END_DT, player.primaryPlaylist, true);
-        }
-      });
+      scheduleEads(ead, deviceId);
     })
     .catch(error => {
       console.log(error);
@@ -139,4 +113,47 @@ const postReport = async (deviceId, data) => {
   } catch (error) {
     return error;
   }
+};
+
+const getEads = async () => {
+  try {
+    const headers = {
+      auth: player.companyId,
+      device_id: player.deviceId,
+    };
+    const response = await axios.get(BASE_URL + EADS_URL, { headers });
+    scheduleEads(response.data);
+  } catch (error) {
+    console.log('error on getEads', error);
+  }
+};
+
+const scheduleEads = ead => {
+  player.jobs.forEach(e => {
+    e.stop();
+  });
+  player.jobs = [];
+
+  ead.items.forEach(v => {
+    const data = [
+      {
+        sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
+        isHivestack: v.HIVESTACK_YN,
+        runningTime: v.RUNNING_TIME,
+        periodYn: v.PERIOD_YN,
+        report: {
+          COMPANY_ID: player.companyId,
+          DEVICE_ID: player.deviceId,
+          FILE_ID: v.FILE_ID,
+          HIVESTACK_YN: v.HIVESTACK_YN,
+          PLAY_ON: null,
+        },
+      },
+    ];
+    console.log('schedule ead', v);
+    scheduleVideo(v.START_DT, data);
+    if (v.PERIOD_YN === 'Y') {
+      scheduleVideo(v.END_DT, player.primaryPlaylist, true);
+    }
+  });
 };
