@@ -94,16 +94,27 @@ let player = videojs(document.querySelector('.video-js'), {
 player.ready(async function () {
   console.log('player ready');
 
-  const deviceIds = await db.deviceIds.toArray();
-  if (deviceIds.length) {
-    const deviceId = deviceIds[deviceIds.length - 1].deviceId;
-    const companyId = deviceIds[deviceIds.length - 1].companyId;
+  const params = new URLSearchParams(location.search);
 
-    this.deviceId = deviceId;
-    this.companyId = companyId;
+  const queryStringDeviceId = params.get('device_id');
+  const queryStringCompanyId = params.get('company_id');
+
+  if (queryStringDeviceId && queryStringCompanyId) {
+    this.deviceId = queryStringDeviceId;
+    this.companyId = queryStringCompanyId;
     getApiResponses(this.deviceId);
   } else {
-    console.log('device id is not defined');
+    const deviceIds = await db.deviceIds.toArray();
+    if (deviceIds.length) {
+      const deviceId = deviceIds[deviceIds.length - 1].deviceId;
+      const companyId = deviceIds[deviceIds.length - 1].companyId;
+
+      this.deviceId = deviceId;
+      this.companyId = companyId;
+      getApiResponses(this.deviceId);
+    } else {
+      console.log('device id is not defined');
+    }
   }
 
   this.jobs = [];
