@@ -152,7 +152,10 @@ player.on('ended', async function () {
   const currentItem = playlist[currentIndex];
 
   if (playlist[currentIndex].periodYn === 'N') {
+    console.log('periodYn is N!');
+    console.log('primary play list is', player.primaryPlaylist);
     player.playlist(player.primaryPlaylist, 0);
+    player.play();
   } else if (playlist[nextIndex].sources[0].src) {
     if (currentIndex === nextIndex) {
       player.play();
