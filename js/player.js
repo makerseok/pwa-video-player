@@ -113,8 +113,8 @@ player.ready(async function () {
 
       this.deviceId = deviceId;
       this.companyId = companyId;
-      getApiResponses(this.deviceId);
       initWebsocket();
+      getApiResponses(this.deviceId);
     } else {
       console.log('device id is not defined');
     }
