@@ -151,7 +151,7 @@ player.on('ended', async function () {
   const nextIndex = this.playlist.nextIndex();
   const currentItem = playlist[currentIndex];
 
-  if (playlist[currentIndex].periodYn === 'Y') {
+  if (playlist[currentIndex].periodYn === 'N') {
     player.playlist(player.primaryPlaylist, 0);
   } else if (playlist[nextIndex].sources[0].src) {
     if (currentIndex === nextIndex) {
