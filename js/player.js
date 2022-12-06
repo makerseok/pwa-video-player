@@ -40,7 +40,7 @@ const fetchVideoAll = async urls => {
     .count();
 
   if (oldCachesCount === 0) {
-    await deleteCachedVideo(urls);
+    // await deleteCachedVideo(urls);
     Promise.all(urls.map(url => axios.get(url))).finally(async () => {
       const reportDB = await db.open();
       await reportDB.caches.add({ cachedOn: getFormattedDate(new Date()) });
@@ -281,11 +281,11 @@ const scheduleVideo = async (startDate, playlist, isPrimary = false) => {
     Promise.all(
       deduplicatedUrls.map(url => axios.get(url, { mode: 'no-cors' })),
     )
-      .catch(error => {
-        console.log('error!');
-      })
-      .finally(() => {
+      .then(() => {
         cronVideo(hyphenStartDate, playlist);
+      })
+      .catch(error => {
+        console.log('error when fetching ead video!');
       });
   }
 };
