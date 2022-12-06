@@ -23,7 +23,7 @@ const getApiResponses = deviceId => {
   Promise.all(endpoint.map(url => axios.get(url, { headers })))
     .then(([{ data: rad }, { data: ead }, { data: device }]) => {
       const screen = rad.device_code;
-      const { code, message, device_id, ...deviceInfo } = device;
+      const { code, message, device_id, company_id, ...deviceInfo } = device;
       const { device_name, location, remark, ...pos } = deviceInfo;
 
       const playlist = rad.items.map(v => {
