@@ -1,5 +1,5 @@
-const STATIC_CACHE_NAME = 'site-static-v42';
-const DYNAMIC_CACHE_NAME = 'site-dynamic-v60';
+const STATIC_CACHE_NAME = 'site-static-v43';
+const DYNAMIC_CACHE_NAME = 'site-dynamic-v61';
 const VIDEO_CACHE_NAME = 'site-video-v4';
 const assets = [
   '/pwa-video-player/',
