@@ -1,10 +1,6 @@
 const host = 'cs.raiid.ai';
 const port = 9001;
 
-const eventMapping = {
-  ead: getEads,
-};
-
 let mqtt;
 
 function onConnect() {
@@ -21,9 +17,14 @@ function onFailure() {
 function onMessageArrived(res) {
   console.log('message arrived', res);
   const event = res.destinationName.replace(/\/ad\/[a-zA-Z0-9]*\//, '');
-  if (eventMapping.hasOwnProperty(event)) {
-    console.log('event is', event);
-    eventMapping[ead]();
+  console.log('event is', event);
+  switch (event) {
+    case 'ead':
+      getEads();
+      break;
+
+    default:
+      break;
   }
 }
 
