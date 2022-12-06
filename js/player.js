@@ -104,6 +104,7 @@ player.ready(async function () {
   if (queryStringDeviceId && queryStringCompanyId) {
     this.deviceId = queryStringDeviceId;
     this.companyId = queryStringCompanyId;
+    initWebsocket();
     getApiResponses(this.deviceId);
   } else {
     const deviceIds = await db.deviceIds.toArray();
