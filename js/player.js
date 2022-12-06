@@ -1,9 +1,9 @@
 const VIDEO_CACHE_NAME = 'site-video-v4';
-const did = 1;
+const DEVICE_ID_AUTH = '5CAE46D0460AFC9035AFE9AE32CD146539EDF83B';
 
 const setDeviceId = async deviceId => {
   const headers = {
-    auth: COMPANY_ID,
+    auth: DEVICE_ID_AUTH,
     device_id: deviceId,
   };
 
@@ -12,7 +12,10 @@ const setDeviceId = async deviceId => {
     if (response.status === 200) {
       console.log(response);
       await db.deviceIds.clear();
-      await db.deviceIds.add({ deviceId: response.data.device_id });
+      await db.deviceIds.add({
+        deviceId: response.data.device_id,
+        companyId: response.data.company_id,
+      });
 
       document.querySelector('#device-id').classList.remove('invalid');
       getApiResponses(response.data.device_id);
@@ -94,8 +97,10 @@ player.ready(async function () {
   const deviceIds = await db.deviceIds.toArray();
   if (deviceIds.length) {
     const deviceId = deviceIds[deviceIds.length - 1].deviceId;
+    const companyId = deviceIds[deviceIds.length - 1].companyId;
 
     this.deviceId = deviceId;
+    this.companyId = companyId;
     getApiResponses(this.deviceId);
   } else {
     console.log('device id is not defined');

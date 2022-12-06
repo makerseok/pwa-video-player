@@ -1,6 +1,6 @@
 const BASE_URL =
   'https://g575dfbc1dbf538-cms.adb.ap-seoul-1.oraclecloudapps.com/ords/podo/v1/podo/';
-const COMPANY_ID = '5CAE46D0460AFC9035AFE9AE32CD146539EDF83B';
+// const COMPANY_ID = '5CAE46D0460AFC9035AFE9AE32CD146539EDF83B';
 const DEVICE_URL = 'devices';
 const POSITION_URL = 'devices/position';
 const RADS_URL = 'rads';
@@ -12,7 +12,7 @@ const HS_API_KEY =
 
 const getApiResponses = deviceId => {
   const headers = {
-    auth: COMPANY_ID,
+    auth: player.companyId,
     device_id: deviceId,
   };
   const endpoint = [
@@ -32,7 +32,7 @@ const getApiResponses = deviceId => {
           isHivestack: v.HIVESTACK_YN,
           runningTime: v.RUNNING_TIME,
           report: {
-            COMPANY_ID: COMPANY_ID,
+            COMPANY_ID: player.companyId,
             DEVICE_ID: deviceId,
             FILE_ID: v.FILE_ID,
             HIVESTACK_YN: v.HIVESTACK_YN,
@@ -71,7 +71,7 @@ const getApiResponses = deviceId => {
             runningTime: v.RUNNING_TIME,
             periodYn: v.PERIOD_YN,
             report: {
-              COMPANY_ID: COMPANY_ID,
+              COMPANY_ID: player.companyId,
               DEVICE_ID: deviceId,
               FILE_ID: v.FILE_ID,
               HIVESTACK_YN: v.HIVESTACK_YN,
@@ -119,7 +119,7 @@ const getUrlFromHS = async (screen, retry = 0) => {
 
 const postPlayerUi = async (deviceId, position) => {
   const headers = {
-    auth: COMPANY_ID,
+    auth: player.companyId,
     device_id: deviceId,
   };
 
@@ -131,7 +131,7 @@ const postPlayerUi = async (deviceId, position) => {
 
 const postReport = async (deviceId, data) => {
   const headers = {
-    auth: COMPANY_ID,
+    auth: player.companyId,
     device_id: deviceId,
   };
   try {
