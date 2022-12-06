@@ -5,7 +5,7 @@ const eventMapping = {
   ead: getEads,
 };
 
-let mqtt = new Paho.MQTT.Client(host, port, 'demo');
+let mqtt;
 
 function onConnect() {
   console.log('connected!');
@@ -27,16 +27,17 @@ function onMessageArrived(res) {
   }
 }
 
-options = {
-  useSSL: true,
-  timeout: 3,
-  onSuccess: onConnect,
-  onFailure: onFailure,
-  userName: 'spacebank',
-  password: 'demo00',
+const initWebsocket = () => {
+  const options = {
+    useSSL: true,
+    timeout: 3,
+    onSuccess: onConnect,
+    onFailure: onFailure,
+    userName: 'spacebank',
+    password: 'demo00',
+  };
+  let mqtt = new Paho.MQTT.Client(host, port, getFormattedDate(new Date()));
+
+  mqtt.onMessageArrived = onMessageArrived;
+  mqtt.connect(options);
 };
-
-mqtt.onMessageArrived = onMessageArrived;
-// mqtt.onMessageDelivered = onMessageDelivered;
-
-mqtt.connect(options);

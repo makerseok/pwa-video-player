@@ -87,6 +87,7 @@ let totalRT = [];
 
 let player = videojs(document.querySelector('.video-js'), {
   inactivityTimeout: 0,
+  muted: true,
   autoplay: true,
   enableSourceset: true,
   controls: false,
@@ -113,13 +114,13 @@ player.ready(async function () {
       this.deviceId = deviceId;
       this.companyId = companyId;
       getApiResponses(this.deviceId);
+      initWebsocket();
     } else {
       console.log('device id is not defined');
     }
   }
 
   this.jobs = [];
-  this.volume(0);
 });
 
 player.on('loadeddata', async function () {
