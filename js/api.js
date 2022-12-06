@@ -58,6 +58,11 @@ const getApiResponses = deviceId => {
       initPlayerUi(pos);
       initPlayerPlaylist(player, playlist, screen); // response.data.items[]
 
+      player.jobs.forEach(e => {
+        e.stop();
+      });
+      player.jobs = [];
+
       ead.items.forEach(v => {
         const data = [
           {
