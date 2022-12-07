@@ -14,22 +14,29 @@ function onFailure() {
   console.log('Connection Failed!');
 }
 
-function onMessageArrived(res) {
-  console.log('message arrived', res);
+async function onMessageArrived(res) {
   const event = res.destinationName.replace(/\/ad\/[a-zA-Z0-9]*\//, '');
   const payload = JSON.parse(res.payloadString);
   const uuid = payload.UUID;
   const result = { event, uuid };
-  console.log('event is', result);
-  switch (event) {
-    case 'ead':
-      getEads().then(() => {
-        postWebsocketResult(result);
-      });
-      break;
 
-    default:
-      break;
+  const count = await db.websockets.where(result).count();
+  if (count === 0) {
+    await db.websockets.add(result);
+    try {
+      switch (event) {
+        case 'ead':
+          console.log('run getEads!');
+          await getEads();
+          break;
+
+        default:
+          break;
+      }
+      await postWebsocketResult(result);
+    } catch (error) {
+      console.log('error on websocket', error);
+    }
   }
 }
 

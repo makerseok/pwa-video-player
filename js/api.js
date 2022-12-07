@@ -123,16 +123,12 @@ const postWebsocketResult = async data => {
 };
 
 const getEads = async () => {
-  try {
-    const headers = {
-      auth: player.companyId,
-      device_id: player.deviceId,
-    };
-    const response = await axios.get(BASE_URL + EADS_URL, { headers });
-    scheduleEads(response.data);
-  } catch (error) {
-    console.log('error on getEads', error);
-  }
+  const headers = {
+    auth: player.companyId,
+    device_id: player.deviceId,
+  };
+  const response = await axios.get(BASE_URL + EADS_URL, { headers });
+  scheduleEads(response.data);
 };
 
 const scheduleEads = ead => {
