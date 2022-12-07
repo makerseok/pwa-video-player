@@ -16,6 +16,8 @@ const setDeviceId = async deviceId => {
         deviceId: response.data.device_id,
         companyId: response.data.company_id,
       });
+      player.deviceId = response.data.device_id;
+      player.companyId = response.data.company_id;
 
       document.querySelector('#device-id').classList.remove('invalid');
       getApiResponses(response.data.device_id);
