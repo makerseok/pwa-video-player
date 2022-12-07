@@ -22,12 +22,16 @@ async function onMessageArrived(res) {
 
   const count = await db.websockets.where(result).count();
   if (count === 0) {
-    await db.websockets.add(result);
     try {
+      await db.websockets.add(result);
       switch (event) {
         case 'ead':
           console.log('run getEads!');
           await getEads();
+          break;
+        case 'rad':
+          console.log('run getRads!');
+          getApiResponses();
           break;
 
         default:

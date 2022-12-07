@@ -210,13 +210,11 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   });
   player.screen = screen;
   player.primaryPlaylist = playlist;
-  player.playlist(playlist);
-  player.playlist.repeat(true);
 
   let [idx, sec] = getTargetInfo();
+  player.playlist(playlist);
   player.playlist.currentItem(idx);
   player.currentTime(sec);
-  player.play();
 };
 
 async function addReport(currentItem) {

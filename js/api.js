@@ -18,18 +18,7 @@ const getApiResponses = () => {
   const endpoint = [BASE_URL + RADS_URL, BASE_URL + DEVICE_URL];
   Promise.all(endpoint.map(url => axios.get(url, { headers })))
     .then(([{ data: rad }, { data: device }]) => {
-      const screen = rad.device_code;
-      const { code, message, device_id, company_id, ...deviceInfo } = device;
-      const { device_name, location, remark, ...pos } = deviceInfo;
-
-      const playlist = itemsToPlaylist(rad);
-
-      const videoList = itemsToVideoList(rad);
-
-      appendVideoList(videoList);
-      setDeviceConfig(deviceInfo);
-      initPlayerUi(pos);
-      initPlayerPlaylist(player, playlist, screen); // response.data.items[]
+      initPlayer(rad, device); // response.data.items[]
     })
     .catch(error => {
       console.log(error);
@@ -141,6 +130,21 @@ const scheduleEads = eadData => {
       });
   });
 };
+
+function initPlayer(rad, device) {
+  const screen = rad.device_code;
+  const { code, message, device_id, company_id, ...deviceInfo } = device;
+  const { device_name, location, remark, ...pos } = deviceInfo;
+
+  const playlist = itemsToPlaylist(rad);
+
+  const videoList = itemsToVideoList(rad);
+
+  appendVideoList(videoList);
+  setDeviceConfig(deviceInfo);
+  initPlayerUi(pos);
+  initPlayerPlaylist(player, playlist, screen);
+}
 
 function itemsToVideoList(radList) {
   return radList.items.map((v, index) => {
