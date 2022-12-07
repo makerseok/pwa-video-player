@@ -213,13 +213,16 @@ const initPlayerPlaylist = (player, playlist, screen) => {
 
   let [idx, sec] = getTargetInfo();
   player.playlist(playlist);
+  player.playlist.repeat(true);
   player.playlist.currentItem(idx);
   player.currentTime(sec);
 };
 
 async function addReport(currentItem) {
   if (currentItem.reportUrl) {
-    axios.get(currentItem.reportUrl);
+    axios.get(currentItem.reportUrl).catch(error => {
+      console.log(error);
+    });
   }
   let report = currentItem.report;
 
