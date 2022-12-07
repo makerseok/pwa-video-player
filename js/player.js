@@ -20,7 +20,7 @@ const setDeviceId = async deviceId => {
       player.companyId = response.data.company_id;
 
       document.querySelector('#device-id').classList.remove('invalid');
-      getApiResponses(response.data.device_id);
+      getApiResponses();
     }
   } catch (error) {
     document.querySelector('#device-id').classList.add('invalid');
@@ -107,7 +107,7 @@ player.ready(async function () {
     this.deviceId = queryStringDeviceId;
     this.companyId = queryStringCompanyId;
     initWebsocket();
-    getApiResponses(this.deviceId);
+    getApiResponses();
   } else {
     const deviceIds = await db.deviceIds.toArray();
     if (deviceIds.length) {
@@ -117,7 +117,7 @@ player.ready(async function () {
       this.deviceId = deviceId;
       this.companyId = companyId;
       initWebsocket();
-      getApiResponses(this.deviceId);
+      getApiResponses();
     } else {
       console.log('device id is not defined');
     }
@@ -243,7 +243,7 @@ async function addReport(currentItem) {
 
 const reportAll = async () => {
   reports = await db.reports.toArray();
-  const result = await postReport(player.deviceId, reports);
+  const result = await postReport(reports);
   if (result.status === 200) {
     console.log('reports posted!', reports);
     M.toast({ html: 'reports posted!' });
