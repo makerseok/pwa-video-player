@@ -6,6 +6,7 @@ const POSITION_URL = 'devices/position';
 const RADS_URL = 'rads';
 const EADS_URL = 'eads';
 const REPORT_URL = 'report';
+const WEBSOCKET_URL = 'websocket';
 
 const HS_API_KEY =
   '$2b$12$y4OZHQji3orEPdy2FtQJye:8f3bc93a-3b31-4323-b1a0-fd20584d9de4';
@@ -109,6 +110,18 @@ const postReport = async (deviceId, data) => {
   }
 };
 
+const postWebsocketResult = async data => {
+  const headers = {
+    auth: player.companyId,
+    device_id: player.deviceId,
+  };
+  try {
+    await axios.post(BASE_URL + WEBSOCKET_URL, data, { headers });
+  } catch (error) {
+    console.log('error on postWebsocketResult', error);
+  }
+};
+
 const getEads = async () => {
   try {
     const headers = {
@@ -145,9 +158,14 @@ const scheduleEads = ead => {
       },
     ];
     console.log('schedule ead', v);
-    scheduleVideo(v.START_DT, data);
-    if (v.PERIOD_YN === 'Y') {
-      scheduleVideo(v.END_DT, player.primaryPlaylist, true);
-    }
+    scheduleVideo(v.START_DT, data)
+      .then(isScheduled => {
+        if (isScheduled && v.PERIOD_YN === 'Y') {
+          scheduleVideo(v.END_DT, player.primaryPlaylist, true);
+        }
+      })
+      .catch(error => {
+        console.log('error on scheduleEads', error);
+      });
   });
 };

@@ -17,10 +17,15 @@ function onFailure() {
 function onMessageArrived(res) {
   console.log('message arrived', res);
   const event = res.destinationName.replace(/\/ad\/[a-zA-Z0-9]*\//, '');
-  console.log('event is', event);
+  const payload = JSON.parse(res.payloadString);
+  const uuid = payload.UUID;
+  const result = { event, uuid };
+  console.log('event is', result);
   switch (event) {
     case 'ead':
-      getEads();
+      getEads().then(() => {
+        postWebsocketResult(result);
+      });
       break;
 
     default:

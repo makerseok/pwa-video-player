@@ -317,14 +317,11 @@ const scheduleVideo = async (startDate, playlist, isPrimary = false) => {
     const urls = playlist.map(v => v.sources[0].src).filter(src => src);
 
     const deduplicatedUrls = [...new Set(urls)];
-    Promise.all(
+    return Promise.all(
       deduplicatedUrls.map(url => axios.get(url, { mode: 'no-cors' })),
-    )
-      .then(() => {
-        cronVideo(hyphenStartDate, playlist);
-      })
-      .catch(error => {
-        console.log('error when fetching ead video!');
-      });
+    ).then(() => {
+      cronVideo(hyphenStartDate, playlist);
+      return true;
+    });
   }
 };
