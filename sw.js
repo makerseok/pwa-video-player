@@ -71,7 +71,6 @@ self.addEventListener('fetch', event => {
         return cachedResponse;
       }
 
-      // if (event.request.destination === 'video') {
       if (event.request.url.indexOf('.mp4') > -1) {
         return fetchVideo(event.request);
       }

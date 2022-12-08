@@ -246,6 +246,9 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   player.playlist.repeat(true);
   player.playlist.currentItem(idx);
   player.currentTime(sec);
+  if (player.paused()) {
+    player.play();
+  }
 };
 
 async function addReport(currentItem) {
