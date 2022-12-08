@@ -1,5 +1,5 @@
-const STATIC_CACHE_NAME = 'site-static-v50';
-const DYNAMIC_CACHE_NAME = 'site-dynamic-v68';
+const STATIC_CACHE_NAME = 'site-static-v51';
+const DYNAMIC_CACHE_NAME = 'site-dynamic-v69';
 const VIDEO_CACHE_NAME = 'site-video-v4';
 const assets = [
   '/pwa-video-player/',
@@ -104,9 +104,30 @@ const cacheVideo = async (url, response) => {
 
 const fetchVideo = async request => {
   const response = await fetch(request);
-  if (response.status !== 206 && response.status !== 0) {
+  if (response.status === 200) {
     await cacheVideo(request.url, response.clone());
     console.log('video cached', request.url);
   }
+  // const cloneResponse = response.clone();
+  // if (cloneResponse.status === 200) {
+  //   // const cache = await caches.open(VIDEO_CACHE_NAME);
+  //   // await cache.put(request.url, response.clone());
+  //   await cacheVideo(request.url, response.clone());
+  //   console.log('video cached', request.url);
+  // if (cloneResponse.body) {
+  //   const reader = cloneResponse.body.getReader();
+  //   const contentLength = +cloneResponse.headers.get('Content-Length');
+  //   let receivedLength = 0;
+  //   while (true) {
+  //     const { done, value } = await reader.read();
+
+  //     if (done) {
+  //       console.log(`Received ${receivedLength} of ${contentLength}`);
+  //       break;
+  //     }
+  //     receivedLength += value.length;
+  //   }
+  // }
+  // }
   return response;
 };
