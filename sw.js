@@ -1,6 +1,9 @@
-const STATIC_CACHE_NAME = 'site-static-v51';
-const DYNAMIC_CACHE_NAME = 'site-dynamic-v69';
+const STATIC_CACHE_NAME = 'site-static-v52';
+const DYNAMIC_CACHE_NAME = 'site-dynamic-v70';
 const VIDEO_CACHE_NAME = 'site-video-v4';
+const FONT_CACHE_NAME = 'site-font-v1';
+const APEX_CACHE_NAME = 'site-apex-v1';
+
 const assets = [
   '/pwa-video-player/',
   '/pwa-video-player/index.html',
@@ -10,12 +13,17 @@ const assets = [
   '/pwa-video-player/css/styles.css',
   '/pwa-video-player/css/materialize.min.css',
   '/pwa-video-player/img/dish.png',
-  'https://fonts.googleapis.com/icon?family=Material+Icons',
-  'https://fonts.gstatic.com/s/materialicons/v139/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2',
   '/pwa-video-player/pages/fallback.html',
   '/pwa-video-player/css/video-js.min.css',
   '/pwa-video-player/js/video.min.js',
   '/pwa-video-player/js/videojs-playlist.min.js',
+  '/pwa-video-player/js/api.js',
+  '/pwa-video-player/js/croner.min.js',
+  '/pwa-video-player/js/db.js',
+  '/pwa-video-player/js/dexie.min.js',
+  '/pwa-video-player/js/jquery.min.js',
+  'https://fonts.googleapis.com/icon?family=Material+Icons',
+  'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;700&display=swap',
 ];
 
 // cache size limit function
@@ -52,7 +60,8 @@ self.addEventListener('activate', event => {
             key =>
               key !== STATIC_CACHE_NAME &&
               key !== DYNAMIC_CACHE_NAME &&
-              key !== VIDEO_CACHE_NAME,
+              key !== VIDEO_CACHE_NAME &&
+              key !== APEX_CACHE_NAME,
           )
           .map(key => caches.delete(key)),
       );
@@ -74,10 +83,13 @@ self.addEventListener('fetch', event => {
       if (event.request.url.indexOf('.mp4') > -1) {
         return fetchVideo(event.request);
       }
-      if (
-        event.request.url.indexOf('hivestack.com') === -1 &&
-        event.request.url.indexOf('ords/podo') === -1
-      ) {
+      if (event.request.url.indexOf('fonts.gstatic.com') > -1) {
+        return fetchVideo(event.request, FONT_CACHE_NAME);
+      }
+      // if (event.request.url.indexOf('ords/podo') > -1) {
+      //   return fetchVideo(event.request, APEX_CACHE_NAME);
+      // }
+      if (event.request.url.indexOf('hivestack.com') === -1) {
         return fetchDynamic(event.request);
       }
       return fetch(event.request);
@@ -95,6 +107,17 @@ const cacheDynamic = async (url, response) => {
   const cache = await caches.open(DYNAMIC_CACHE_NAME);
   await cache.put(url, response);
   limitCacheSize(DYNAMIC_CACHE_NAME, 15);
+};
+
+const fetchOthers = async (request, cacheName) => {
+  const response = await fetch(request);
+  await cacheDynamic(request.url, response.clone(), cacheName);
+  return response;
+};
+
+const cacheOthers = async (url, response, cacheName) => {
+  const cache = await caches.open(cacheName);
+  await cache.put(url, response);
 };
 
 const cacheVideo = async (url, response) => {
