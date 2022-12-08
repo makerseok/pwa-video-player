@@ -10,6 +10,26 @@ const WEBSOCKET_URL = 'websocket';
 const HS_API_KEY =
   '$2b$12$y4OZHQji3orEPdy2FtQJye:8f3bc93a-3b31-4323-b1a0-fd20584d9de4';
 
+/* 폴리필 코드 */
+if (!Promise.allSettled) {
+  Promise.allSettled = function (promises) {
+    return Promise.all(
+      promises.map(p =>
+        Promise.resolve(p).then(
+          value => ({
+            status: 'fulfilled',
+            value,
+          }),
+          reason => ({
+            status: 'rejected',
+            reason,
+          }),
+        ),
+      ),
+    );
+  };
+}
+
 const getApiResponses = () => {
   const headers = {
     auth: player.companyId,
@@ -25,10 +45,10 @@ const getApiResponses = () => {
     });
 };
 
-const getUrlFromHS = async (screen, retry = 0) => {
+const getUrlFromHS = async (hivestackUrl, retry = 0) => {
   let hivestackInfo = {};
 
-  const HS_URL = `https://uat.hivestack.com/nirvana/api/v1/units/schedulevast/${screen}?apikey=${HS_API_KEY}`;
+  const HS_URL = hivestackUrl;
   if (retry > 2) {
     hivestackInfo.success = false;
     return hivestackInfo;
@@ -39,9 +59,9 @@ const getUrlFromHS = async (screen, retry = 0) => {
   const media = $xml.getElementsByTagName('MediaFile').item(0);
   const report = $xml.getElementsByTagName('Impression').item(0);
   if (!media) {
-    hivestackInfo = await getUrlFromHS(screen, retry + 1);
+    hivestackInfo = await getUrlFromHS(hivestackUrl, retry + 1);
   } else if (media.getAttribute('type') !== 'video/mp4') {
-    hivestackInfo = await getUrlFromHS(screen, retry + 1);
+    hivestackInfo = await getUrlFromHS(hivestackUrl, retry + 1);
   } else {
     hivestackInfo.success = true;
     hivestackInfo.videoUrl = media.textContent.trim();
@@ -50,6 +70,8 @@ const getUrlFromHS = async (screen, retry = 0) => {
 
   return hivestackInfo;
 };
+
+const fetchHivestackVideo = async () => {};
 
 const postPlayerUi = async position => {
   const headers = {
@@ -107,6 +129,7 @@ const scheduleEads = eadData => {
       {
         sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
         isHivestack: v.HIVESTACK_YN,
+        hivestackUrl: v.API_URL,
         runningTime: v.RUNNING_TIME,
         periodYn: v.PERIOD_YN,
         report: {
@@ -137,13 +160,18 @@ function initPlayer(rad, device) {
   const { device_name, location, remark, ...pos } = deviceInfo;
 
   const playlist = itemsToPlaylist(rad);
-
   const videoList = itemsToVideoList(rad);
 
-  appendVideoList(videoList);
-  setDeviceConfig(deviceInfo);
-  initPlayerUi(pos);
-  initPlayerPlaylist(player, playlist, screen);
+  const urls = playlist.map(v => v.sources[0].src).filter(src => src);
+  const deduplicatedUrls = [...new Set(urls)];
+
+  fetchVideoAll(deduplicatedUrls).then(() => {
+    console.log('finish fetching');
+    appendVideoList(videoList);
+    setDeviceConfig(deviceInfo);
+    initPlayerUi(pos);
+    initPlayerPlaylist(player, playlist, screen);
+  });
 }
 
 function itemsToVideoList(radList) {
@@ -164,6 +192,7 @@ function itemsToPlaylist(radData) {
     return {
       sources: [{ src: v.VIDEO_URL, type: 'video/mp4' }],
       isHivestack: v.HIVESTACK_YN,
+      hivestackUrl: v.API_URL,
       runningTime: v.RUNNING_TIME,
       report: {
         COMPANY_ID: player.companyId,

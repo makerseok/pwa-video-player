@@ -45,11 +45,36 @@ const fetchVideoAll = async urls => {
     .count();
 
   if (oldCachesCount === 0) {
+    const videoCaches = await caches.open(VIDEO_CACHE_NAME);
+    const keys = await videoCaches.keys();
+    const cachedUrls = keys.map(e => e.url);
+
+    const targetUrls = urls.filter(e => !cachedUrls.includes(e));
+    const header = { destination: 'video' };
+    const requests = targetUrls.map(url => axios.get(url), { header });
+    console.log('fetching requests', requests);
     // await deleteCachedVideo(urls);
-    Promise.all(urls.map(url => axios.get(url))).finally(async () => {
+    try {
+      const result = await Promise.allSettled(requests);
+      console.log('allSettled result', result);
+      // 실패한 것들만 필터링해서 다시 시도
+      result.forEach(async (val, index) => {
+        try {
+          // 실패한 요청 다시 시도
+          if (!videoCaches.match(targetUrls[index])) {
+            console.log('fetching 재시도', targetUrls[index]);
+            await requests[index];
+          }
+        } catch (error) {
+          error => console.log('error on retry', error);
+        }
+      });
+    } catch (error) {
+      error => console.log(error);
+    } finally {
       const reportDB = await db.open();
       await reportDB.caches.add({ cachedOn: getFormattedDate(new Date()) });
-    });
+    }
   }
 };
 
@@ -90,7 +115,7 @@ let totalRT = [];
 let player = videojs(document.querySelector('.video-js'), {
   inactivityTimeout: 0,
   muted: true,
-  autoplay: true,
+  // autoplay: true,
   enableSourceset: true,
   controls: false,
 });
@@ -133,12 +158,17 @@ player.on('loadeddata', async function () {
   const previousIndex = this.playlist.previousIndex();
 
   if (playlist[nextIndex].isHivestack === 'Y') {
-    const hivestackInfo = await getUrlFromHS(this.screen);
+    const hivestackInfo = await getUrlFromHS(playlist[nextIndex].hivestackUrl);
     console.log('hivestackInfo', hivestackInfo);
     if (hivestackInfo.success) {
-      playlist[nextIndex].sources[0].src = hivestackInfo.videoUrl;
-      playlist[nextIndex].reportUrl = hivestackInfo.reportUrl;
-      playlist[nextIndex].report.HIVESTACK_URL = hivestackInfo.videoUrl;
+      try {
+        await axios.get(hivestackInfo.videoUrl);
+        playlist[nextIndex].sources[0].src = hivestackInfo.videoUrl;
+        playlist[nextIndex].reportUrl = hivestackInfo.reportUrl;
+        playlist[nextIndex].report.HIVESTACK_URL = hivestackInfo.videoUrl;
+      } catch (error) {
+        console.log('error on fetching hivestack url');
+      }
     }
   }
   if (playlist[previousIndex].isHivestack === 'Y') {
@@ -283,12 +313,17 @@ function cronVideo(date, playlist) {
       before2Min,
       { maxRuns: 1, context: playlist },
       async (_self, context) => {
-        const hivestackInfo = await getUrlFromHS(player.screen);
+        const hivestackInfo = await getUrlFromHS(context[0].hivestackUrl);
         console.log('scheduled hivestackInfo', hivestackInfo);
         if (hivestackInfo.success) {
-          context[0].sources[0].src = hivestackInfo.videoUrl;
-          context[0].reportUrl = hivestackInfo.reportUrl;
-          context[0].report.HIVESTACK_URL = hivestackInfo.videoUrl;
+          try {
+            await axios.get(hivestackInfo.videoUrl);
+            context[0].sources[0].src = hivestackInfo.videoUrl;
+            context[0].reportUrl = hivestackInfo.reportUrl;
+            context[0].report.HIVESTACK_URL = hivestackInfo.videoUrl;
+          } catch (error) {
+            console.log('error on fetching hivestack url');
+          }
           cronVideo(date, context);
         }
       },
