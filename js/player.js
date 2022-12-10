@@ -157,26 +157,31 @@ player.on('loadeddata', async function () {
   const nextIndex = this.playlist.nextIndex();
   const previousIndex = this.playlist.previousIndex();
 
-  if (playlist[nextIndex].isHivestack === 'Y') {
-    const hivestackInfo = await getUrlFromHS(playlist[nextIndex].hivestackUrl);
-    console.log('hivestackInfo', hivestackInfo);
-    if (hivestackInfo.success) {
-      try {
-        await axios.get(hivestackInfo.videoUrl);
-        playlist[nextIndex].sources[0].src = hivestackInfo.videoUrl;
-        playlist[nextIndex].reportUrl = hivestackInfo.reportUrl;
-        playlist[nextIndex].report.HIVESTACK_URL = hivestackInfo.videoUrl;
-      } catch (error) {
-        console.log('error on fetching hivestack url');
+  try {
+    if (playlist[nextIndex].isHivestack === 'Y') {
+      const hivestackInfo = await getUrlFromHS(
+        playlist[nextIndex].hivestackUrl,
+      );
+      console.log('hivestackInfo', hivestackInfo);
+      if (hivestackInfo.success) {
+        try {
+          await axios.get(hivestackInfo.videoUrl);
+          playlist[nextIndex].sources[0].src = hivestackInfo.videoUrl;
+          playlist[nextIndex].reportUrl = hivestackInfo.reportUrl;
+          playlist[nextIndex].report.HIVESTACK_URL = hivestackInfo.videoUrl;
+        } catch (error) {
+          console.log('error on fetching hivestack url');
+        }
       }
     }
+    if (playlist[previousIndex].isHivestack === 'Y') {
+      playlist[previousIndex].sources[0].src = null;
+      playlist[previousIndex].reportUrl = null;
+      playlist[previousIndex].report.HIVESTACK_URL = null;
+    }
+  } catch (error) {
+    console.log('Error on loadeddata > getUrlFromHS');
   }
-  if (playlist[previousIndex].isHivestack === 'Y') {
-    playlist[previousIndex].sources[0].src = null;
-    playlist[previousIndex].reportUrl = null;
-    playlist[previousIndex].report.HIVESTACK_URL = null;
-  }
-
   playlist[currentIndex].report.PLAY_ON = getFormattedDate(new Date());
 
   this.playlist(playlist, currentIndex);
@@ -271,7 +276,11 @@ async function addReport(currentItem) {
     .count();
 
   if (oldDataCount > 0) {
-    reportAll();
+    try {
+      await reportAll();
+    } catch (error) {
+      console.log('Error on reportALL');
+    }
   }
 }
 
@@ -283,7 +292,7 @@ const reportAll = async () => {
     M.toast({ html: 'reports posted!' });
     db.reports.clear();
   } else {
-    console.log('report post failed!', result);
+    console.log('report post failed!');
   }
 };
 

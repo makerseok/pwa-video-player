@@ -22,6 +22,12 @@ const assets = [
   '/pwa-video-player/js/db.js',
   '/pwa-video-player/js/dexie.min.js',
   '/pwa-video-player/js/jquery.min.js',
+  '/pwa-video-player/css/jquery-ui.min.css',
+  '	/pwa-video-player/js/axios.min.js',
+  '/pwa-video-player/js/jquery-ui.min.js',
+  '/pwa-video-player/js/mqttws31.min.js',
+  '/pwa-video-player/js/player.js',
+  '/pwa-video-player/js/ws.js',
   'https://fonts.googleapis.com/icon?family=Material+Icons',
   'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;700&display=swap',
 ];
@@ -61,6 +67,7 @@ self.addEventListener('activate', event => {
               key !== STATIC_CACHE_NAME &&
               key !== DYNAMIC_CACHE_NAME &&
               key !== VIDEO_CACHE_NAME &&
+              key !== FONT_CACHE_NAME &&
               key !== APEX_CACHE_NAME,
           )
           .map(key => caches.delete(key)),
@@ -72,24 +79,39 @@ self.addEventListener('activate', event => {
 // fetch event
 self.addEventListener('fetch', event => {
   // console.log('fetch event', event);
+  if (event.request.url.includes('chrome-extension:')) return;
   if (event.request.method !== 'GET') return;
   event.respondWith(
     (async () => {
+      if (event.request.url.includes('ords/podo')) {
+        try {
+          return await fetchOthers(event.request, APEX_CACHE_NAME);
+        } catch (error) {
+          console.log('Error on fetching', event.request.url);
+          const cachedResponse = await caches.match(event.request);
+          if (cachedResponse) {
+            console.log('Cached response', event.request.url);
+            return cachedResponse;
+          }
+        }
+      }
+
       const cachedResponse = await caches.match(event.request);
       if (cachedResponse) {
         return cachedResponse;
       }
 
-      if (event.request.url.indexOf('.mp4') > -1) {
+      if (event.request.url.includes('.mp4')) {
         return fetchVideo(event.request);
       }
-      if (event.request.url.indexOf('fonts.gstatic.com') > -1) {
-        return fetchVideo(event.request, FONT_CACHE_NAME);
+      if (event.request.url.includes('fonts.gstatic.com')) {
+        console.log(
+          'event.request.url.includes("fonts.gstatic.com")',
+          event.request.url,
+        );
+        return fetchOthers(event.request, FONT_CACHE_NAME);
       }
-      // if (event.request.url.indexOf('ords/podo') > -1) {
-      //   return fetchVideo(event.request, APEX_CACHE_NAME);
-      // }
-      if (event.request.url.indexOf('hivestack.com') === -1) {
+      if (!event.request.url.includes('hivestack.com')) {
         return fetchDynamic(event.request);
       }
       return fetch(event.request);
@@ -111,7 +133,7 @@ const cacheDynamic = async (url, response) => {
 
 const fetchOthers = async (request, cacheName) => {
   const response = await fetch(request);
-  await cacheDynamic(request.url, response.clone(), cacheName);
+  await cacheOthers(request.url, response.clone(), cacheName);
   return response;
 };
 
