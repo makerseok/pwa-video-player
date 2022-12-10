@@ -61,7 +61,7 @@ const fetchVideoAll = async urls => {
       result.forEach(async (val, index) => {
         try {
           // 실패한 요청 다시 시도
-          if (!videoCaches.match(targetUrls[index])) {
+          if (val.status === 'rejected') {
             console.log('fetching 재시도', targetUrls[index]);
             await requests[index];
           }
@@ -69,11 +69,10 @@ const fetchVideoAll = async urls => {
           error => console.log('error on retry', error);
         }
       });
-    } catch (error) {
-      error => console.log(error);
-    } finally {
       const reportDB = await db.open();
       await reportDB.caches.add({ cachedOn: getFormattedDate(new Date()) });
+    } catch (error) {
+      error => console.log(error);
     }
   }
 };
@@ -185,21 +184,6 @@ player.on('loadeddata', async function () {
   playlist[currentIndex].report.PLAY_ON = getFormattedDate(new Date());
 
   this.playlist(playlist, currentIndex);
-});
-
-let isFetched = false;
-
-player.on('progress', function () {
-  if (this.bufferedPercent() === 1 && !isFetched) {
-    const urls = this.playlist()
-      .map(v => v.sources[0].src)
-      .filter(src => src);
-
-    const deduplicatedUrls = [...new Set(urls)];
-
-    fetchVideoAll(deduplicatedUrls);
-    isFetched = true;
-  }
 });
 
 player.on('ended', async function () {
