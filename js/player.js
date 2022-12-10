@@ -150,6 +150,19 @@ player.ready(async function () {
   this.jobs = [];
 });
 
+player.on('loadstart', async event => {
+  const currentIndex = player.playlist.currentIndex();
+  console.log('loadstart', currentIndex);
+  const nextIndex = player.playlist.nextIndex();
+  const url = player.playlist()[currentIndex].sources[0].src;
+  const cachedVideo = await caches.open(VIDEO_CACHE_NAME);
+  const cachedResponse = await cachedVideo.match(url);
+  if (!cachedResponse) {
+    console.log('not cached video! jump to', nextIndex);
+    player.playlist.currentItem(nextIndex);
+  }
+});
+
 player.on('loadeddata', async function () {
   const playlist = this.playlist();
   const currentIndex = this.playlist.currentIndex();
