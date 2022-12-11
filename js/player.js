@@ -117,6 +117,7 @@ let player = videojs(document.querySelector('.video-js'), {
   // autoplay: true,
   enableSourceset: true,
   controls: false,
+  preload: 'none',
 });
 
 player.ready(async function () {
@@ -150,18 +151,11 @@ player.ready(async function () {
   this.jobs = [];
 });
 
-player.on('loadstart', async event => {
-  const currentIndex = player.playlist.currentIndex();
-  console.log('loadstart', currentIndex);
-  const nextIndex = player.playlist.nextIndex();
-  const url = player.playlist()[currentIndex].sources[0].src;
+const isCached = async url => {
   const cachedVideo = await caches.open(VIDEO_CACHE_NAME);
   const cachedResponse = await cachedVideo.match(url);
-  if (!cachedResponse) {
-    console.log('not cached video! jump to', nextIndex);
-    player.playlist.currentItem(nextIndex);
-  }
-});
+  return cachedResponse;
+};
 
 player.on('loadeddata', async function () {
   const playlist = this.playlist();
@@ -209,27 +203,16 @@ player.on('ended', async function () {
     console.log('periodYn is N!');
     console.log('primary play list is', player.primaryPlaylist);
     player.playlist(player.primaryPlaylist);
-    player.playlist.currentItem(0);
-  } else if (playlist[nextIndex].sources[0].src) {
+    await gotoPlayableVideo(player.primaryPlaylist, 0);
+  } else if (await isCached(playlist[nextIndex].sources[0].src)) {
+    console.log('video is cached, index is', nextIndex);
     if (currentIndex === nextIndex) {
       player.play();
     }
     player.playlist.next();
   } else {
-    const distances = playlist.map((e, idx) => {
-      return { distance: idx - currentIndex, idx: idx };
-    });
-    const sortedDistances = distances
-      .filter(e => e.distance > 0)
-      .concat(distances.filter(e => e.distance < 0));
-
-    for (let i = 0; i < sortedDistances.length; i++) {
-      if (playlist[sortedDistances[i].idx].sources[0].src) {
-        player.playlist.currentItem(sortedDistances[i].idx);
-        console.log('go to', sortedDistances[i].idx);
-        break;
-      }
-    }
+    console.log('video is not cached');
+    await gotoPlayableVideo(playlist, currentIndex);
   }
 
   addReport(currentItem);
@@ -252,6 +235,23 @@ const initPlayerPlaylist = (player, playlist, screen) => {
     player.play();
   }
 };
+
+async function gotoPlayableVideo(playlist, currentIndex) {
+  const distances = playlist.map((e, idx) => {
+    return { distance: idx - currentIndex, idx: idx };
+  });
+  const sortedDistances = distances
+    .filter(e => e.distance > 0)
+    .concat(distances.filter(e => e.distance < 0));
+
+  for (let i = 0; i < sortedDistances.length; i++) {
+    if (await isCached(playlist[sortedDistances[i].idx].sources[0].src)) {
+      player.playlist.currentItem(sortedDistances[i].idx);
+      console.log('go to', sortedDistances[i].idx);
+      break;
+    }
+  }
+}
 
 async function addReport(currentItem) {
   if (currentItem.reportUrl) {
