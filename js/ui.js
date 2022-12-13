@@ -6,6 +6,8 @@ const deviceConfigMapping = {
   left: 'left',
   height: 'height',
   width: 'width',
+  on: '시작시간',
+  off: '종료시간',
 };
 
 const playerDOM = document.querySelector('#modal-player');

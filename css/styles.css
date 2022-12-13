@@ -30,6 +30,11 @@ nav .sidenav-trigger {
   margin-top: 2rem;
 }
 
+/* display poster when paused */
+.vjs-paused .vjs-poster {
+  display: inline-block !important;
+}
+
 /* info */
 
 .info {

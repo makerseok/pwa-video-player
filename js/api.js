@@ -157,7 +157,21 @@ const scheduleEads = eadData => {
 function initPlayer(rad, device) {
   const screen = rad.device_code;
   const { code, message, device_id, company_id, ...deviceInfo } = device;
-  const { device_name, location, remark, ...pos } = deviceInfo;
+  const { device_name, location, remark, on, off, ...pos } = deviceInfo;
+  const date = new Date();
+  player.runon = sethhMMss(date, on);
+  player.runoff = sethhMMss(date, off);
+  const runon = Cron(player.runon, () => {
+    console.log('cron info - play on', player.runon);
+    player.playlist.currentItem(0);
+    player.play();
+  });
+  player.jobs.push(runon);
+  const runoff = Cron(player.runoff, () => {
+    console.log('cron info - play off', player.runoff);
+    player.pause();
+  });
+  player.jobs.push(runoff);
 
   const playlist = itemsToPlaylist(rad);
   const videoList = itemsToVideoList(rad);

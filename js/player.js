@@ -88,14 +88,28 @@ const gethhMMss = date => {
   return date.toTimeString().split(' ')[0];
 };
 
-const getFormattedDate = date => {
-  const yymmdd =
+const sethhMMss = (date, hhMMss) => {
+  const modifiedDate = new Date(date);
+  const [hh, MM, ss] = hhMMss.split(':');
+  modifiedDate.setHours(hh);
+  modifiedDate.setMinutes(MM);
+  modifiedDate.setSeconds(ss);
+  return modifiedDate;
+};
+
+const getyymmdd = date => {
+  return (
     date.getFullYear().toString() +
     (date.getMonth() + 1 < 9
       ? '0' + (date.getMonth() + 1)
       : date.getMonth() + 1
     ).toString() +
-    (date.getDate() < 9 ? '0' + date.getDate() : date.getDate()).toString();
+    (date.getDate() < 9 ? '0' + date.getDate() : date.getDate()).toString()
+  );
+};
+
+const getFormattedDate = date => {
+  const yymmdd = getyymmdd(date);
   const time = gethhMMss(date);
 
   return `${yymmdd} ${time}`;
@@ -191,6 +205,13 @@ player.on('loadeddata', async function () {
   playlist[currentIndex].report.PLAY_ON = getFormattedDate(new Date());
 
   this.playlist(playlist, currentIndex);
+});
+
+player.on('play', () => {
+  const date = new Date();
+  if (date < player.runon || date > player.runoff) {
+    player.pause();
+  }
 });
 
 player.on('ended', async function () {
@@ -294,8 +315,7 @@ const reportAll = async () => {
 };
 
 function getTargetInfo() {
-  let _refTimestamp =
-    new Date(new Date().toDateString()).getTime() + 6 * 60 * 60 * 1000; // 06시 시작 기준
+  let _refTimestamp = player.playon;
   let curTimestamp = new Date().getTime();
   let refTimestamp =
     _refTimestamp > curTimestamp
