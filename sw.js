@@ -1,5 +1,5 @@
-const STATIC_CACHE_NAME = 'site-static-v56';
-const DYNAMIC_CACHE_NAME = 'site-dynamic-v70';
+const STATIC_CACHE_NAME = 'site-static-v57';
+const DYNAMIC_CACHE_NAME = 'site-dynamic-v71';
 const VIDEO_CACHE_NAME = 'site-video-v4';
 const FONT_CACHE_NAME = 'site-font-v1';
 const APEX_CACHE_NAME = 'site-apex-v1';
@@ -54,6 +54,13 @@ self.addEventListener('install', event => {
   );
 });
 
+// skipWaiting
+addEventListener('message', function (messageEvent) {
+  if (messageEvent.data === 'skipWaiting') {
+    return skipWaiting();
+  }
+});
+
 // activate event
 self.addEventListener('activate', event => {
   console.log('service worker has been activated');
@@ -79,6 +86,15 @@ self.addEventListener('activate', event => {
 // fetch event
 self.addEventListener('fetch', event => {
   // console.log('fetch event', event);
+  const scope = self.registration.scope;
+  if (
+    [scope, scope + 'index.html', scope + 'index.htm'].includes(
+      event.request.url,
+    )
+  ) {
+    event.respondWith(fetch(scope + 'sw-installed.html'));
+    return;
+  }
   if (event.request.url.includes('chrome-extension:')) return;
   if (event.request.method !== 'GET') return;
   event.respondWith(
