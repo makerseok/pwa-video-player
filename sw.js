@@ -111,7 +111,10 @@ self.addEventListener('fetch', event => {
         );
         return fetchOthers(event.request, FONT_CACHE_NAME);
       }
-      if (!event.request.url.includes('hivestack.com')) {
+      if (
+        !event.request.url.includes('hivestack.com') &&
+        !assets.includes(event.request.url)
+      ) {
         return fetchDynamic(event.request);
       }
       return fetch(event.request);
