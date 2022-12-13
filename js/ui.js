@@ -36,7 +36,9 @@ const initPlayerUi = position => {
           top: Math.max(ui.offset.top, 0),
           left: Math.max(ui.offset.left, 0),
         };
-        postPlayerUi(position);
+        postPlayerUi(position).then(() => {
+          updateDevicePositionUi(position);
+        });
       },
     })
     .resizable({
@@ -46,7 +48,9 @@ const initPlayerUi = position => {
           top: Math.max(ui.position.top, 0),
           left: Math.max(ui.position.left, 0),
         };
-        postPlayerUi(position);
+        postPlayerUi(position).then(() => {
+          updateDevicePositionUi(position);
+        });
       },
     });
 };
@@ -85,8 +89,15 @@ const setDeviceConfig = deviceConfig => {
     const tr = document.createElement('tr');
     const th = createElementWithInnerText('th', deviceConfigMapping[prop]);
     const td = createElementWithInnerText('td', deviceConfig[prop]);
+    td.setAttribute('name', deviceConfigMapping[prop]);
     tr.appendChild(th);
     tr.appendChild(td);
     parentNode.appendChild(tr);
+  }
+};
+
+const updateDevicePositionUi = position => {
+  for (key in position) {
+    document.querySelector(`td[name="${key}"]`).innerText = position[key];
   }
 };
