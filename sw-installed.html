@@ -74,8 +74,13 @@
   <body class="grey darken-4">
     <!-- top nav -->
     <nav class="z-depth-0">
-      <div class="nav-wrapper container">
-        <a href="/pwa-video-player/">PWA<span>player</span></a>
+      <div class="nav-wrapper container grey-text text-lighten-4">
+        <a href="/pwa-video-player/" class="brand-logo"
+          >PWA<span>player</span></a
+        >
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li><a onclick="initialization()">초기화</a></li>
+        </ul>
       </div>
     </nav>
     <a

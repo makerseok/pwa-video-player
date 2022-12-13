@@ -1,4 +1,4 @@
-const STATIC_CACHE_NAME = 'site-static-v57';
+const STATIC_CACHE_NAME = 'site-static-v59';
 const DYNAMIC_CACHE_NAME = 'site-dynamic-v71';
 const VIDEO_CACHE_NAME = 'site-video-v4';
 const FONT_CACHE_NAME = 'site-font-v1';
@@ -23,7 +23,7 @@ const assets = [
   '/pwa-video-player/js/dexie.min.js',
   '/pwa-video-player/js/jquery.min.js',
   '/pwa-video-player/css/jquery-ui.min.css',
-  '	/pwa-video-player/js/axios.min.js',
+  '/pwa-video-player/js/axios.min.js',
   '/pwa-video-player/js/jquery-ui.min.js',
   '/pwa-video-player/js/mqttws31.min.js',
   '/pwa-video-player/js/player.js',
@@ -127,9 +127,11 @@ self.addEventListener('fetch', event => {
         );
         return fetchOthers(event.request, FONT_CACHE_NAME);
       }
+      const path = new URL(event.request.url).pathname;
       if (
         !event.request.url.includes('hivestack.com') &&
-        !assets.includes(event.request.url)
+        !assets.includes(event.request.url) &&
+        !assets.includes(path)
       ) {
         return fetchDynamic(event.request);
       }
