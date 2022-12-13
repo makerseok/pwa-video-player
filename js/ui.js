@@ -21,6 +21,17 @@ const observer = new ResizeObserver(entries => {
 
 observer.observe(playerDOM);
 
+const applyPosition = position => {
+  if (player.locked) return;
+  for (key in position) {
+    position[key] = Math.round(position[key]);
+  }
+
+  postPlayerUi(position).then(() => {
+    updateDevicePositionUi(position);
+  });
+};
+
 // popup 노출
 const initPlayerUi = position => {
   const { width, height, ...offset } = position;
@@ -30,6 +41,7 @@ const initPlayerUi = position => {
     .width(width)
     .height(height)
     .draggable({
+      disabled: player.locked,
       cursor: 'crosshair',
       stop: function (event, ui) {
         const position = {
@@ -38,29 +50,18 @@ const initPlayerUi = position => {
           top: Math.max(ui.offset.top, 0),
           left: Math.max(ui.offset.left, 0),
         };
-        for (key in position) {
-          position[key] = Math.round(position[key]);
-        }
-
-        postPlayerUi(position).then(() => {
-          updateDevicePositionUi(position);
-        });
+        applyPosition(position);
       },
     })
     .resizable({
+      disabled: player.locked,
       stop: function (event, ui) {
         const position = {
           ...ui.size,
           top: Math.max(ui.position.top, 0),
           left: Math.max(ui.position.left, 0),
         };
-        for (key in position) {
-          position[key] = Math.round(position[key]);
-        }
-
-        postPlayerUi(position).then(() => {
-          updateDevicePositionUi(position);
-        });
+        applyPosition(position);
       },
     });
 };
@@ -97,13 +98,19 @@ const setDeviceConfig = deviceConfig => {
 
   for (const prop in deviceConfig) {
     const tr = document.createElement('tr');
-    const th = createElementWithInnerText('th', deviceConfigMapping[prop]);
-    const td = createElementWithInnerText('td', deviceConfig[prop]);
-    td.setAttribute('name', deviceConfigMapping[prop]);
-    tr.appendChild(th);
-    tr.appendChild(td);
-    parentNode.appendChild(tr);
+    if (deviceConfigMapping[prop]) {
+      const th = createElementWithInnerText('th', deviceConfigMapping[prop]);
+      const td = createElementWithInnerText('td', deviceConfig[prop]);
+      td.setAttribute('name', deviceConfigMapping[prop]);
+      tr.appendChild(th);
+      tr.appendChild(td);
+      parentNode.appendChild(tr);
+    }
   }
+
+  const isLocked = deviceConfig['locked'] === 'Y' ? true : false;
+  const lockPositionSwitch = createSwitchElement(isLocked);
+  parentNode.appendChild(lockPositionSwitch);
 };
 
 const updateDevicePositionUi = position => {
@@ -111,3 +118,30 @@ const updateDevicePositionUi = position => {
     document.querySelector(`td[name="${key}"]`).innerText = position[key];
   }
 };
+function createSwitchElement(isLocked) {
+  const lockPositionSwitch = document.createElement('div');
+  lockPositionSwitch.classList.add('switch');
+  lockPositionSwitch.id = 'lock-position';
+  lockPositionSwitch.innerHTML = `<label>크기 & 위치 고정<input type="checkbox" /><span class="lever"></span></label>`;
+  const lockPositionSwitchInput = lockPositionSwitch.querySelector('input');
+  lockPositionSwitchInput.checked = isLocked;
+  player.locked = isLocked;
+  lockPositionSwitchInput.addEventListener('change', () =>
+    applyLockPosition(lockPositionSwitchInput),
+  );
+  return lockPositionSwitch;
+}
+
+function applyLockPosition(lockPositionSwitchInput) {
+  const isChecked = lockPositionSwitchInput.checked;
+  postPositionLocked(isChecked)
+    .then(() => {
+      console.log('postPositionLocked');
+      player.locked = isChecked;
+      $(playerDOM).draggable(isChecked ? 'disable' : 'enable');
+      $(playerDOM).resizable(isChecked ? 'disable' : 'enable');
+    })
+    .catch(error => {
+      M.toast({ html: '크기 & 위치 고정 여부 연동 실패!', classes: 'red' });
+    });
+}

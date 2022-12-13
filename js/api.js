@@ -2,6 +2,7 @@ const BASE_URL =
   'https://g575dfbc1dbf538-cms.adb.ap-seoul-1.oraclecloudapps.com/ords/podo/v1/podo/';
 const DEVICE_URL = 'devices';
 const POSITION_URL = 'devices/position';
+const POSITION_LOCKED_URL = 'devices/position/locked';
 const RADS_URL = 'rads';
 const EADS_URL = 'eads';
 const REPORT_URL = 'report';
@@ -167,8 +168,10 @@ function initPlayer(rad, device) {
     left,
     width,
     height,
+    locked,
     ...rest
   } = deviceInfo;
+  player.locked = locked === 'Y' ? true : false;
   const pos = { top, left, width, height };
   const date = new Date();
   player.runon = sethhMMss(date, on);
@@ -231,3 +234,12 @@ function itemsToPlaylist(radData) {
     };
   });
 }
+
+const postPositionLocked = locked => {
+  const headers = {
+    auth: player.companyId,
+    device_id: player.deviceId,
+  };
+  const data = { locked: locked ? 'Y' : 'N' };
+  return axios.post(BASE_URL + POSITION_LOCKED_URL, data, { headers });
+};
