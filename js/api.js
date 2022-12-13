@@ -157,7 +157,19 @@ const scheduleEads = eadData => {
 function initPlayer(rad, device) {
   const screen = rad.device_code;
   const { code, message, device_id, company_id, ...deviceInfo } = device;
-  const { device_name, location, remark, on, off, ...pos } = deviceInfo;
+  const {
+    device_name,
+    location,
+    remark,
+    on,
+    off,
+    top,
+    left,
+    width,
+    height,
+    ...rest
+  } = deviceInfo;
+  const pos = { top, left, width, height };
   const date = new Date();
   player.runon = sethhMMss(date, on);
   player.runoff = sethhMMss(date, off);
