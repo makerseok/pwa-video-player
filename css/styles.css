@@ -72,7 +72,7 @@ nav .sidenav-trigger {
 #modal-player {
   max-height: none !important;
   margin: 0px !important;
-  z-index: 100;
+  z-index: 16777271;
 }
 
 /* report button */
