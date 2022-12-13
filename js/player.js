@@ -315,7 +315,7 @@ const reportAll = async () => {
 };
 
 function getTargetInfo() {
-  let _refTimestamp = player.playon;
+  let _refTimestamp = player.runon.getTime();
   let curTimestamp = new Date().getTime();
   let refTimestamp =
     _refTimestamp > curTimestamp
