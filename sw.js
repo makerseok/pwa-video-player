@@ -1,11 +1,11 @@
-const STATIC_CACHE_NAME = 'site-static-v65';
-const DYNAMIC_CACHE_NAME = 'site-dynamic-v73';
+const STATIC_CACHE_NAME = 'site-static-v66';
+const DYNAMIC_CACHE_NAME = 'site-dynamic-v74';
 const VIDEO_CACHE_NAME = 'site-video-v4';
 const FONT_CACHE_NAME = 'site-font-v1';
 const APEX_CACHE_NAME = 'site-apex-v1';
 
 const assets = [
-  // '',
+  '/pwa-video-player/',
   'index.html',
   'sw-installed.html',
   'js/app.js',
