@@ -103,7 +103,7 @@ self.addEventListener('fetch', event => {
         }
         const response = await fetch(scope + 'sw-installed.html' + url.search);
         const cache = await caches.open(STATIC_CACHE_NAME);
-        await cache.put('sw-installed.html', response);
+        await cache.put('sw-installed.html', response.clone());
         return response;
       })(),
     );
