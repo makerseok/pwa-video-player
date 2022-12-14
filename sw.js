@@ -1,33 +1,33 @@
-const STATIC_CACHE_NAME = 'site-static-v63';
-const DYNAMIC_CACHE_NAME = 'site-dynamic-v71';
+const STATIC_CACHE_NAME = 'site-static-v64';
+const DYNAMIC_CACHE_NAME = 'site-dynamic-v72';
 const VIDEO_CACHE_NAME = 'site-video-v4';
 const FONT_CACHE_NAME = 'site-font-v1';
 const APEX_CACHE_NAME = 'site-apex-v1';
 
 const assets = [
-  '/pwa-video-player/',
-  '/pwa-video-player/index.html',
-  '/pwa-video-player/js/app.js',
-  '/pwa-video-player/js/ui.js',
-  '/pwa-video-player/js/materialize.min.js',
-  '/pwa-video-player/css/styles.css',
-  '/pwa-video-player/css/materialize.min.css',
-  '/pwa-video-player/img/dish.png',
-  '/pwa-video-player/pages/fallback.html',
-  '/pwa-video-player/css/video-js.min.css',
-  '/pwa-video-player/js/video.min.js',
-  '/pwa-video-player/js/videojs-playlist.min.js',
-  '/pwa-video-player/js/api.js',
-  '/pwa-video-player/js/croner.min.js',
-  '/pwa-video-player/js/db.js',
-  '/pwa-video-player/js/dexie.min.js',
-  '/pwa-video-player/js/jquery.min.js',
-  '/pwa-video-player/css/jquery-ui.min.css',
-  '/pwa-video-player/js/axios.min.js',
-  '/pwa-video-player/js/jquery-ui.min.js',
-  '/pwa-video-player/js/mqttws31.min.js',
-  '/pwa-video-player/js/player.js',
-  '/pwa-video-player/js/ws.js',
+  // '',
+  'index.html',
+  'sw-installed.html',
+  'js/app.js',
+  'js/ui.js',
+  'js/materialize.min.js',
+  'css/styles.css',
+  'css/materialize.min.css',
+  'pages/fallback.html',
+  'css/video-js.min.css',
+  'js/video.min.js',
+  'js/videojs-playlist.min.js',
+  'js/api.js',
+  'js/croner.min.js',
+  'js/db.js',
+  'js/dexie.min.js',
+  'js/jquery.min.js',
+  'css/jquery-ui.min.css',
+  'js/axios.min.js',
+  'js/jquery-ui.min.js',
+  'js/mqttws31.min.js',
+  'js/player.js',
+  'js/ws.js',
   'https://fonts.googleapis.com/icon?family=Material+Icons',
   'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;700&display=swap',
 ];
