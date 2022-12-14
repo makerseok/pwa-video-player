@@ -1,5 +1,5 @@
-const STATIC_CACHE_NAME = 'site-static-v64';
-const DYNAMIC_CACHE_NAME = 'site-dynamic-v72';
+const STATIC_CACHE_NAME = 'site-static-v65';
+const DYNAMIC_CACHE_NAME = 'site-dynamic-v73';
 const VIDEO_CACHE_NAME = 'site-video-v4';
 const FONT_CACHE_NAME = 'site-font-v1';
 const APEX_CACHE_NAME = 'site-apex-v1';
@@ -87,12 +87,26 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   // console.log('fetch event', event);
   const scope = self.registration.scope;
+  const url = new URL(event.request.url);
+  const queryReplacedUrl = url.href.replace(url.search, '');
   if (
     [scope, scope + 'index.html', scope + 'index.htm'].includes(
-      event.request.url,
+      queryReplacedUrl,
     )
   ) {
-    event.respondWith(fetch(scope + 'sw-installed.html'));
+    event.respondWith(
+      (async () => {
+        const cachedResponse = await caches.match('sw-installed.html');
+        if (cachedResponse) {
+          console.log('Cached response', event.request.url);
+          return cachedResponse;
+        }
+        const response = await fetch(scope + 'sw-installed.html' + url.search);
+        const cache = await caches.open(STATIC_CACHE_NAME);
+        await cache.put('sw-installed.html', response);
+        return response;
+      })(),
+    );
     return;
   }
   if (event.request.url.includes('chrome-extension:')) return;
@@ -127,7 +141,7 @@ self.addEventListener('fetch', event => {
         );
         return fetchOthers(event.request, FONT_CACHE_NAME);
       }
-      const path = new URL(event.request.url).pathname;
+      const path = url.pathname;
       if (
         !event.request.url.includes('hivestack.com') &&
         !assets.includes(event.request.url) &&
