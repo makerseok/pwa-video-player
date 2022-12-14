@@ -1,5 +1,5 @@
 navigator.serviceWorker
-  .register('/pwa-video-player/sw.js')
+  .register('sw.js')
   .then(registration => {
     console.log('running "supported-browser-install.js"');
     if (registration.installing) {

@@ -19,7 +19,7 @@ function listenForWaitingServiceWorker(registration) {
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker
-    .register('/pwa-video-player/sw.js')
+    .register('sw.js')
     .then(registration => {
       console.log('service worker registered', registration);
       // notify new user if an updated SW was installed.
