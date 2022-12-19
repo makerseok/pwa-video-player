@@ -107,6 +107,12 @@ const sethhMMss = (date, hhMMss) => {
   return modifiedDate;
 };
 
+const hhMMssToCron = hhMMss => {
+  const [hh, MM, ss] = hhMMss.split(':');
+
+  return `${ss} ${MM} ${hh} * * *`;
+};
+
 const getyymmdd = date => {
   return (
     date.getFullYear().toString() +
@@ -214,7 +220,7 @@ player.on('loadeddata', async function () {
 });
 
 player.on('play', () => {
-  const date = new Date();
+  const date = gethhMMss(new Date());
   if (date < player.runon || date > player.runoff) {
     player.pause();
   }

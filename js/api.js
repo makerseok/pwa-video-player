@@ -189,20 +189,26 @@ function initPlayer(rad, device) {
   } = deviceInfo;
   player.locked = locked === 'Y' ? true : false;
   const pos = { top, left, width, height };
-  const date = new Date();
-  player.runon = sethhMMss(date, on);
-  player.runoff = sethhMMss(date, off);
-  const runon = Cron(player.runon, () => {
-    console.log('cron info - play on', player.runon);
+
+  player.runon = on;
+  player.runoff = off;
+
+  player.defaultJobs = [];
+  player.defaultJobs.forEach(e => {
+    e.stop();
+  });
+  player.defaultJobs = [];
+  const runon = Cron(hhMMssToCron(on), () => {
+    console.log('cron info - play on', hhMMssToCron(on));
     player.playlist.currentItem(0);
     player.play();
   });
-  player.jobs.push(runon);
-  const runoff = Cron(player.runoff, () => {
-    console.log('cron info - play off', player.runoff);
+  player.defaultJobs.push(runon);
+  const runoff = Cron(hhMMssToCron(off), () => {
+    console.log('cron info - play off', hhMMssToCron(off));
     player.pause();
   });
-  player.jobs.push(runoff);
+  player.defaultJobs.push(runoff);
 
   const playlist = itemsToPlaylist(rad);
   const videoList = itemsToVideoList(rad);
