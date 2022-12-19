@@ -33,6 +33,10 @@ async function onMessageArrived(res) {
           console.log('run getRads!');
           getApiResponses();
           break;
+        case 'screen':
+          console.log('run getPlayerUi!');
+          await getPlayerUi();
+          break;
 
         default:
           break;

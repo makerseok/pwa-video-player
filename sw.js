@@ -1,4 +1,4 @@
-const STATIC_CACHE_NAME = 'site-static-v66';
+const STATIC_CACHE_NAME = 'site-static-v76';
 const DYNAMIC_CACHE_NAME = 'site-dynamic-v74';
 const VIDEO_CACHE_NAME = 'site-video-v4';
 const FONT_CACHE_NAME = 'site-font-v1';
@@ -88,7 +88,7 @@ self.addEventListener('fetch', event => {
   // console.log('fetch event', event);
   const scope = self.registration.scope;
   const url = new URL(event.request.url);
-  const queryReplacedUrl = url.href.replace(url.search, '');
+  const queryReplacedUrl = url.href.replace(url.search, '').split('?')[0];
   if (
     [scope, scope + 'index.html', scope + 'index.htm'].includes(
       queryReplacedUrl,

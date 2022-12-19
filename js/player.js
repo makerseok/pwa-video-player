@@ -41,7 +41,14 @@ const deleteCachedVideo = async urls => {
 const fetchVideoAll = async urls => {
   const oldCachesCount = await db.caches
     .where('cachedOn')
-    .above(getFormattedDate(new Date(new Date().toLocaleDateString())))
+    .between(
+      getFormattedDate(new Date(new Date().toLocaleDateString())),
+      getFormattedDate(
+        addMinutes(new Date(new Date().toLocaleDateString()), 1440),
+      ),
+      false,
+    )
+    .and(item => item.deviceId === player.deviceId)
     .count();
 
   if (oldCachesCount === 0) {
@@ -70,7 +77,10 @@ const fetchVideoAll = async urls => {
         }
       });
       const reportDB = await db.open();
-      await reportDB.caches.add({ cachedOn: getFormattedDate(new Date()) });
+      await reportDB.caches.add({
+        cachedOn: getFormattedDate(new Date()),
+        deviceId: player.deviceId,
+      });
     } catch (error) {
       error => console.log(error);
     }
@@ -95,6 +105,12 @@ const sethhMMss = (date, hhMMss) => {
   modifiedDate.setMinutes(MM);
   modifiedDate.setSeconds(ss);
   return modifiedDate;
+};
+
+const hhMMssToCron = hhMMss => {
+  const [hh, MM, ss] = hhMMss.split(':');
+
+  return `${ss} ${MM} ${hh} * * *`;
 };
 
 const getyymmdd = date => {
@@ -123,8 +139,6 @@ const addHyphen = dateString => {
   return addedDateString;
 };
 
-let totalRT = [];
-
 let player = videojs(document.querySelector('.video-js'), {
   inactivityTimeout: 0,
   muted: true,
@@ -145,7 +159,6 @@ player.ready(async function () {
   if (queryStringDeviceId && queryStringCompanyId) {
     this.deviceId = queryStringDeviceId;
     this.companyId = queryStringCompanyId;
-    initWebsocket();
     getApiResponses();
   } else {
     const deviceIds = await db.deviceIds.toArray();
@@ -155,7 +168,6 @@ player.ready(async function () {
 
       this.deviceId = deviceId;
       this.companyId = companyId;
-      initWebsocket();
       getApiResponses();
     } else {
       console.log('device id is not defined');
@@ -208,7 +220,7 @@ player.on('loadeddata', async function () {
 });
 
 player.on('play', () => {
-  const date = new Date();
+  const date = gethhMMss(new Date());
   if (date < player.runon || date > player.runoff) {
     player.pause();
   }
@@ -219,12 +231,18 @@ player.on('ended', async function () {
   const currentIndex = this.playlist.currentIndex();
   const nextIndex = this.playlist.nextIndex();
   const currentItem = playlist[currentIndex];
+  const playOn = currentItem.report.PLAY_ON;
 
+  if (player.isPrimaryPlaylist) {
+    await storeLastPlayedVideo(currentIndex, playOn);
+  }
   if (playlist[currentIndex].periodYn === 'N') {
     console.log('periodYn is N!');
     console.log('primary play list is', player.primaryPlaylist);
     player.playlist(player.primaryPlaylist);
-    await gotoPlayableVideo(player.primaryPlaylist, 0);
+    player.isPrimaryPlaylist = true;
+    const lastPlayed = await getLastPlayedIndex();
+    await gotoPlayableVideo(player.primaryPlaylist, lastPlayed.videoIndex);
   } else if (await isCached(playlist[nextIndex].sources[0].src)) {
     console.log('video is cached, index is', nextIndex);
     if (currentIndex === nextIndex) {
@@ -235,9 +253,23 @@ player.on('ended', async function () {
     console.log('video is not cached');
     await gotoPlayableVideo(playlist, currentIndex);
   }
-
   addReport(currentItem);
 });
+
+const storeLastPlayedVideo = async (videoIndex, PlayOn) => {
+  const storedOn = getFormattedDate(new Date());
+  await db.lastPlayed.put({
+    deviceId: player.deviceId,
+    videoIndex,
+    PlayOn,
+    storedOn,
+  });
+};
+
+const getLastPlayedIndex = async () => {
+  const index = await db.lastPlayed.get(player.deviceId);
+  return index || 0;
+};
 
 const initPlayerPlaylist = (player, playlist, screen) => {
   console.log('initPlayerPlaylist');
@@ -247,14 +279,20 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   player.screen = screen;
   player.primaryPlaylist = playlist;
 
-  let [idx, sec] = getTargetInfo();
   player.playlist(playlist);
+  player.isPrimaryPlaylist = true;
   player.playlist.repeat(true);
-  player.playlist.currentItem(idx);
-  player.currentTime(sec);
-  if (player.paused()) {
-    player.play();
-  }
+  getLastPlayedIndex()
+    .then(async lastPlayed => {
+      console.log('######## last played index is', lastPlayed.videoIndex);
+      await gotoPlayableVideo(playlist, lastPlayed.videoIndex);
+      if (player.paused()) {
+        player.play();
+      }
+    })
+    .catch(error => {
+      console.log('Error on getLastPlayedIndex; set the index to 0');
+    });
 };
 
 async function gotoPlayableVideo(playlist, currentIndex) {
@@ -314,27 +352,6 @@ const reportAll = async () => {
   }
 };
 
-function getTargetInfo() {
-  let _refTimestamp = player.runon.getTime();
-  let curTimestamp = new Date().getTime();
-  let refTimestamp =
-    _refTimestamp > curTimestamp
-      ? _refTimestamp - 24 * 60 * 60 * 1000
-      : _refTimestamp;
-
-  let totalTimestamp = totalRT.reduce((acc, cur, idx) => (acc += cur), 0);
-  let targetTimestamp = (curTimestamp - refTimestamp) % totalTimestamp;
-
-  for (let i = 0; i < totalRT.length; i++) {
-    if (targetTimestamp < totalRT[i]) {
-      return [i, targetTimestamp / 1000];
-    } else {
-      targetTimestamp -= totalRT[i];
-    }
-  }
-  return [0, 0];
-}
-
 function cronVideo(date, playlist) {
   if (playlist.length === 1 && playlist[0].isHivestack === 'Y') {
     const before2Min = addMinutes(date, -2);
@@ -366,6 +383,7 @@ function cronVideo(date, playlist) {
       (_self, context) => {
         console.log('cron context', context);
         player.playlist(context);
+        player.isPrimaryPlaylist = false;
         player.playlist.currentItem(0);
       },
     );
