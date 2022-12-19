@@ -74,6 +74,22 @@ const getUrlFromHS = async (hivestackUrl, retry = 0) => {
 
 const fetchHivestackVideo = async () => {};
 
+const getPlayerUi = async () => {
+  const headers = {
+    auth: player.companyId,
+    device_id: player.deviceId,
+  };
+
+  const response = await axios.get(BASE_URL + DEVICE_URL, { headers });
+  const position = {
+    top: response.data.top,
+    left: response.data.left,
+    width: response.data.width,
+    height: response.data.height,
+  };
+  initPlayerUi(position);
+};
+
 const postPlayerUi = async position => {
   const headers = {
     auth: player.companyId,
