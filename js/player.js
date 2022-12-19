@@ -133,8 +133,6 @@ const addHyphen = dateString => {
   return addedDateString;
 };
 
-let totalRT = [];
-
 let player = videojs(document.querySelector('.video-js'), {
   inactivityTimeout: 0,
   muted: true,
@@ -227,11 +225,13 @@ player.on('ended', async function () {
   const currentIndex = this.playlist.currentIndex();
   const nextIndex = this.playlist.nextIndex();
   const currentItem = playlist[currentIndex];
+  const playOn = currentItem.report.PLAY_ON;
 
   if (playlist[currentIndex].periodYn === 'N') {
     console.log('periodYn is N!');
     console.log('primary play list is', player.primaryPlaylist);
     player.playlist(player.primaryPlaylist);
+    player.isPrimaryPlaylist = true;
     await gotoPlayableVideo(player.primaryPlaylist, 0);
   } else if (await isCached(playlist[nextIndex].sources[0].src)) {
     console.log('video is cached, index is', nextIndex);
@@ -243,9 +243,21 @@ player.on('ended', async function () {
     console.log('video is not cached');
     await gotoPlayableVideo(playlist, currentIndex);
   }
-
+  if (player.isPrimaryPlaylist) {
+    storeLastPlayedVideo(currentIndex, playOn);
+  }
   addReport(currentItem);
 });
+
+const storeLastPlayedVideo = async (videoIndex, PlayOn) => {
+  const storedOn = getFormattedDate(new Date());
+  await db.lastPlayed.put({
+    deviceId: player.deviceId,
+    videoIndex,
+    PlayOn,
+    storedOn,
+  });
+};
 
 const initPlayerPlaylist = (player, playlist, screen) => {
   console.log('initPlayerPlaylist');
@@ -255,14 +267,14 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   player.screen = screen;
   player.primaryPlaylist = playlist;
 
-  let [idx, sec] = getTargetInfo();
   player.playlist(playlist);
+  player.isPrimaryPlaylist = true;
   player.playlist.repeat(true);
   player.playlist.currentItem(idx);
   player.currentTime(sec);
-  if (player.paused()) {
-    player.play();
-  }
+      if (player.paused()) {
+        player.play();
+      }
 };
 
 async function gotoPlayableVideo(playlist, currentIndex) {
@@ -374,6 +386,7 @@ function cronVideo(date, playlist) {
       (_self, context) => {
         console.log('cron context', context);
         player.playlist(context);
+        player.isPrimaryPlaylist = false;
         player.playlist.currentItem(0);
       },
     );
