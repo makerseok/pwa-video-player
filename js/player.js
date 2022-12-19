@@ -41,7 +41,14 @@ const deleteCachedVideo = async urls => {
 const fetchVideoAll = async urls => {
   const oldCachesCount = await db.caches
     .where('cachedOn')
-    .above(getFormattedDate(new Date(new Date().toLocaleDateString())))
+    .between(
+      getFormattedDate(new Date(new Date().toLocaleDateString())),
+      getFormattedDate(
+        addMinutes(new Date(new Date().toLocaleDateString()), 1440),
+      ),
+      false,
+    )
+    .and(item => item.deviceId === player.deviceId)
     .count();
 
   if (oldCachesCount === 0) {
@@ -70,7 +77,10 @@ const fetchVideoAll = async urls => {
         }
       });
       const reportDB = await db.open();
-      await reportDB.caches.add({ cachedOn: getFormattedDate(new Date()) });
+      await reportDB.caches.add({
+        cachedOn: getFormattedDate(new Date()),
+        deviceId: player.deviceId,
+      });
     } catch (error) {
       error => console.log(error);
     }
