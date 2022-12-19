@@ -259,6 +259,11 @@ const storeLastPlayedVideo = async (videoIndex, PlayOn) => {
   });
 };
 
+const getLastPlayedIndex = async () => {
+  const index = await db.lastPlayed.get(player.deviceId);
+  return index || 0;
+};
+
 const initPlayerPlaylist = (player, playlist, screen) => {
   console.log('initPlayerPlaylist');
   totalRT = playlist.map(v => {
@@ -270,11 +275,17 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   player.playlist(playlist);
   player.isPrimaryPlaylist = true;
   player.playlist.repeat(true);
-  player.playlist.currentItem(idx);
-  player.currentTime(sec);
+  getLastPlayedIndex()
+    .then(async lastPlayed => {
+      console.log('######## last played index is', lastPlayed.videoIndex);
+      await gotoPlayableVideo(playlist, lastPlayed.videoIndex || 0);
       if (player.paused()) {
         player.play();
       }
+    })
+    .catch(error => {
+      console.log('Error on getLastPlayedIndex; set the index to 0');
+    });
 };
 
 async function gotoPlayableVideo(playlist, currentIndex) {
@@ -333,27 +344,6 @@ const reportAll = async () => {
     console.log('report post failed!');
   }
 };
-
-function getTargetInfo() {
-  let _refTimestamp = player.runon.getTime();
-  let curTimestamp = new Date().getTime();
-  let refTimestamp =
-    _refTimestamp > curTimestamp
-      ? _refTimestamp - 24 * 60 * 60 * 1000
-      : _refTimestamp;
-
-  let totalTimestamp = totalRT.reduce((acc, cur, idx) => (acc += cur), 0);
-  let targetTimestamp = (curTimestamp - refTimestamp) % totalTimestamp;
-
-  for (let i = 0; i < totalRT.length; i++) {
-    if (targetTimestamp < totalRT[i]) {
-      return [i, targetTimestamp / 1000];
-    } else {
-      targetTimestamp -= totalRT[i];
-    }
-  }
-  return [0, 0];
-}
 
 function cronVideo(date, playlist) {
   if (playlist.length === 1 && playlist[0].isHivestack === 'Y') {
