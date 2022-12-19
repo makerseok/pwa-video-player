@@ -216,6 +216,7 @@ function initPlayer(rad, device) {
     setDeviceConfig(deviceInfo);
     initPlayerUi(pos);
     initPlayerPlaylist(player, playlist, screen);
+    initWebsocket();
   });
 }
 
