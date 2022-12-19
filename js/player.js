@@ -279,7 +279,7 @@ const initPlayerPlaylist = (player, playlist, screen) => {
   getLastPlayedIndex()
     .then(async lastPlayed => {
       console.log('######## last played index is', lastPlayed.videoIndex);
-      await gotoPlayableVideo(playlist, lastPlayed.videoIndex || 0);
+      await gotoPlayableVideo(playlist, lastPlayed.videoIndex);
       if (player.paused()) {
         player.play();
       }
