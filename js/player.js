@@ -155,7 +155,6 @@ player.ready(async function () {
   if (queryStringDeviceId && queryStringCompanyId) {
     this.deviceId = queryStringDeviceId;
     this.companyId = queryStringCompanyId;
-    initWebsocket();
     getApiResponses();
   } else {
     const deviceIds = await db.deviceIds.toArray();
@@ -165,7 +164,6 @@ player.ready(async function () {
 
       this.deviceId = deviceId;
       this.companyId = companyId;
-      initWebsocket();
       getApiResponses();
     } else {
       console.log('device id is not defined');
