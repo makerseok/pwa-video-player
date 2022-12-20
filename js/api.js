@@ -31,7 +31,7 @@ if (!Promise.allSettled) {
   };
 }
 
-const getApiResponses = () => {
+const getApiResponses = (sudo = false) => {
   const headers = {
     auth: player.companyId,
     device_id: player.deviceId,
@@ -39,7 +39,7 @@ const getApiResponses = () => {
   const endpoint = [BASE_URL + RADS_URL, BASE_URL + DEVICE_URL];
   Promise.all(endpoint.map(url => axios.get(url, { headers })))
     .then(([{ data: rad }, { data: device }]) => {
-      initPlayer(rad, device); // response.data.items[]
+      initPlayer(rad, device, sudo); // response.data.items[]
     })
     .catch(error => {
       console.log(error);
@@ -171,7 +171,7 @@ const scheduleEads = eadData => {
   });
 };
 
-function initPlayer(rad, device) {
+function initPlayer(rad, device, sudo = false) {
   const screen = rad.device_code;
   const { code, message, device_id, company_id, ...deviceInfo } = device;
   const {
@@ -216,7 +216,7 @@ function initPlayer(rad, device) {
   const urls = playlist.map(v => v.sources[0].src).filter(src => src);
   const deduplicatedUrls = [...new Set(urls)];
 
-  fetchVideoAll(deduplicatedUrls).then(() => {
+  fetchVideoAll(deduplicatedUrls, sudo).then(() => {
     console.log('finish fetching');
     appendVideoList(videoList);
     setDeviceConfig(deviceInfo);

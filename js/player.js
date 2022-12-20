@@ -38,7 +38,7 @@ const deleteCachedVideo = async urls => {
   });
 };
 
-const fetchVideoAll = async urls => {
+const fetchVideoAll = async (urls, sudo = false) => {
   const oldCachesCount = await db.caches
     .where('cachedOn')
     .between(
@@ -51,7 +51,7 @@ const fetchVideoAll = async urls => {
     .and(item => item.deviceId === player.deviceId)
     .count();
 
-  if (oldCachesCount === 0) {
+  if (oldCachesCount === 0 || sudo) {
     const videoCaches = await caches.open(VIDEO_CACHE_NAME);
     const keys = await videoCaches.keys();
     const cachedUrls = keys.map(e => e.url);
