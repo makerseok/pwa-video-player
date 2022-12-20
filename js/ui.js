@@ -12,21 +12,34 @@ const deviceConfigMapping = {
 
 const playerDOM = document.querySelector('#modal-player');
 
-const observer = new ResizeObserver(entries => {
+const resizeObserver = new ResizeObserver(entries => {
   for (let entry of entries) {
     const { width, height } = entry.contentRect;
     $('.video-js').width(width).height(height);
   }
 });
+resizeObserver.observe(playerDOM);
 
-observer.observe(playerDOM);
+var intersectionObserver = new IntersectionObserver(function (entries) {
+  console.log(entries[0]);
+  if (entries[0].isIntersecting) {
+    console.log('player is visible!');
+    player.isVisible = true;
+    player.play();
+  } else {
+    console.log('player is not visible!');
+    player.isVisible = false;
+    player.pause();
+  }
+});
+intersectionObserver.observe(playerDOM);
 
 const applyPosition = position => {
   if (player.locked) return;
   for (key in position) {
     position[key] = Math.round(position[key]);
   }
-
+  player.position = position;
   postPlayerUi(position).then(() => {
     updateDevicePositionUi(position);
   });
@@ -181,3 +194,27 @@ function applyLockPosition(lockPositionSwitchInput) {
       M.toast({ html: '크기 & 위치 고정 여부 연동 실패!', classes: 'red' });
     });
 }
+
+const showPlaylistOnly = () => {
+  const videoInfo = document.querySelector('.video-info');
+  const deviceInfo = document.querySelector('.device-info');
+
+  videoInfo.classList.remove('mobile-hidden');
+  deviceInfo.classList.add('mobile-hidden');
+};
+
+const showDeviceInfoOnly = () => {
+  const videoInfo = document.querySelector('.video-info');
+  const deviceInfo = document.querySelector('.device-info');
+
+  videoInfo.classList.add('mobile-hidden');
+  deviceInfo.classList.remove('mobile-hidden');
+};
+
+const showPlayerMobile = () => {
+  playerDOM.classList.remove('mobile-hidden');
+};
+
+const hidePlayerMobile = () => {
+  playerDOM.classList.add('mobile-hidden');
+};

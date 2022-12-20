@@ -54,7 +54,7 @@
     >
     <!-- videos -->
     <div class="videos row grey-text text-lighten-4">
-      <div class="info video-info col s12 m8 l8">
+      <div class="info video-info col">
         <div class="title">비디오 목록</div>
         <div class="info-table">
           <table>
@@ -73,7 +73,7 @@
           </table>
         </div>
       </div>
-      <div class="info device-info col s12 m4 l4">
+      <div class="info device-info mobile-hidden col">
         <div class="title">설정 정보</div>
         <div class="info-table">
           <table>
@@ -107,22 +107,37 @@
       </div>
     </div>
 
-    <!-- <div class="center">
-      <a
-        class="btn-floating btn-small btn-large add-btn sidenav-trigger"
-        data-target="side-form"
-      >
-        <i class="material-icons">add</i>
-      </a>
-    </div> -->
-
     <!-- Modal player -->
-    <div id="modal-player">
+    <div id="modal-player" class="mobile-hidden">
       <!-- <div class="modal-content"> -->
       <video class="video-js vjs-default-skin" controls></video>
       <!-- </div> -->
     </div>
-
+    <div class="footer-fixed">
+      <footer class="red lighten-2">
+        <nav class="z-depth-0">
+          <div class="nav-wrapper">
+            <ul class="justify">
+              <li>
+                <a id="mobile-playlist" onclick="showPlaylistOnly()"
+                  ><i class="material-icons">playlist_play</i></a
+                >
+              </li>
+              <li>
+                <a id="mobile-config" onclick="showDeviceInfoOnly()"
+                  ><i class="material-icons">settings</i></a
+                >
+              </li>
+              <li>
+                <a id="mobile-player" onclick="player.enterFullWindow()"
+                  ><i class="material-icons">play_arrow</i></a
+                >
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </footer>
+    </div>
     <script src="js/db.js"></script>
     <script src="js/app.js"></script>
     <script src="js/api.js"></script>

@@ -1,3 +1,10 @@
+/* prevent shift left */
+html,
+body {
+  width: auto !important;
+  overflow-x: hidden !important;
+}
+
 /* font */
 html {
   font-family: 'Noto Sans KR', sans-serif;
@@ -28,6 +35,7 @@ nav .sidenav-trigger {
 
 .videos {
   margin-top: 2rem;
+  margin-bottom: 4rem;
 }
 
 /* display poster when paused */
@@ -46,13 +54,32 @@ nav .sidenav-trigger {
   padding: 0px !important;
 }
 
-.info.video-info {
-  border-right: 1px solid var(--secondary);
-}
-
-@media only screen and (min-width: 993px) {
+@media (any-hover: hover) {
+  .info.video-info {
+    border-right: 1px solid var(--secondary);
+    width: 66.6666666667%;
+    margin-left: auto;
+  }
   .info .info-table {
     padding: 0px 3rem !important;
+  }
+  .info.device-info {
+    width: 33.3333333333%;
+    margin-left: auto;
+  }
+}
+
+@media (any-hover: none) {
+  .info.video-info {
+    width: 100%;
+    margin-left: auto;
+  }
+  .info .info-table {
+    padding: 0px 3rem !important;
+  }
+  .info.device-info {
+    width: 100%;
+    margin-left: auto;
   }
 }
 
@@ -107,18 +134,36 @@ nav .sidenav-trigger {
   padding-left: 3rem;
 }
 
-/* form-styles */
-/* .add-btn {
-  background: var(--title) !important;
+/* when PC device */
+@media (any-hover: hover) {
+  .footer-fixed {
+    display: none;
+  }
 }
-input {
-  box-shadow: none !important;
-  -webkit-box-shadow: none !important;
+
+/* when mobile device */
+@media (any-hover: none) {
+  /* footer navbar */
+  .footer-fixed {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+
+  footer ul.justify {
+    text-align: center;
+    display: table;
+    overflow: hidden;
+    margin: 0 auto;
+  }
+
+  footer ul.justify li {
+    margin-left: auto;
+    margin-right: auto;
+    width: 82px;
+  }
+
+  .mobile-hidden {
+    display: none;
+  }
 }
-.side-form button {
-  background: var(--title);
-  box-shadow: 1px 1px 3px rgba(90, 90, 90, 0.2);
-}
-form .input-field {
-  margin-top: 30px;
-} */

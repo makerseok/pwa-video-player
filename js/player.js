@@ -63,8 +63,8 @@ const fetchVideoAll = async (urls, sudo = false) => {
     // await deleteCachedVideo(urls);
     try {
       if (!sudo) {
-      displaySpinnerOnTable();
-      disableDeviceIdButton();
+        displaySpinnerOnTable();
+        disableDeviceIdButton();
       }
       const result = await Promise.allSettled(requests);
       console.log('allSettled result', result);
@@ -182,6 +182,21 @@ player.ready(async function () {
   this.jobs = [];
 });
 
+player.on('enterFullWindow', () => {
+  player.isVisible = true;
+  showPlayerMobile();
+  player.play();
+});
+
+player.on('exitFullWindow', () => {
+  hidePlayerMobile();
+  player.pause();
+});
+
+player.on('touchstart', () => {
+  player.exitFullWindow();
+});
+
 const isCached = async url => {
   const cachedVideo = await caches.open(VIDEO_CACHE_NAME);
   const cachedResponse = await cachedVideo.match(url);
@@ -225,6 +240,10 @@ player.on('loadeddata', async function () {
 });
 
 player.on('play', () => {
+  if (!player.isVisible) {
+    player.pause();
+  }
+
   const date = gethhMMss(new Date());
   if (date < player.runon || date > player.runoff) {
     player.pause();

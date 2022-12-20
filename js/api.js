@@ -189,7 +189,7 @@ function initPlayer(rad, device, sudo = false) {
   } = deviceInfo;
   player.locked = locked === 'Y' ? true : false;
   const pos = { top, left, width, height };
-
+  player.position = pos;
   player.runon = on;
   player.runoff = off;
 
@@ -223,7 +223,7 @@ function initPlayer(rad, device, sudo = false) {
     initPlayerUi(pos);
     initPlayerPlaylist(player, playlist, screen);
     if (!mqtt) {
-    initWebsocket();
+      initWebsocket();
     }
   });
 }
