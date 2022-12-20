@@ -1,4 +1,4 @@
-const STATIC_CACHE_NAME = 'site-static-v77';
+const STATIC_CACHE_NAME = 'site-static-v78';
 const DYNAMIC_CACHE_NAME = 'site-dynamic-v74';
 const VIDEO_CACHE_NAME = 'site-video-v4';
 const FONT_CACHE_NAME = 'site-font-v1';
