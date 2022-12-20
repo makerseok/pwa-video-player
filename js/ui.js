@@ -78,6 +78,31 @@ const removeAllChildNodes = parent => {
   }
 };
 
+const displaySpinner = node => {
+  node.innerHTML = `
+<td class="center" colspan="6">
+  <div class="preloader-wrapper big active">
+    <div class="spinner-layer">
+      <div class="circle-clipper left">
+        <div class="circle"></div>
+      </div><div class="gap-patch">
+        <div class="circle"></div>
+      </div><div class="circle-clipper right">
+        <div class="circle"></div>
+      </div>
+    </div>
+  </div>
+</td>
+`;
+};
+
+const displaySpinnerOnTable = () => {
+  const videoListNode = document.querySelector('#video-body');
+  const deviceConfigNode = document.querySelector('#device-config');
+  displaySpinner(videoListNode);
+  displaySpinner(deviceConfigNode);
+};
+
 const appendVideoList = videoList => {
   const parentNode = document.querySelector('#video-body');
   removeAllChildNodes(parentNode);
@@ -118,6 +143,17 @@ const updateDevicePositionUi = position => {
     document.querySelector(`td[name="${key}"]`).innerText = position[key];
   }
 };
+
+const disableDeviceIdButton = () => {
+  const deviceIdButton = document.querySelector('#btn-device-id');
+  deviceIdButton.setAttribute('disabled', '');
+};
+
+const enableDeviceIdButton = () => {
+  const deviceIdButton = document.querySelector('#btn-device-id');
+  deviceIdButton.removeAttribute('disabled');
+};
+
 function createSwitchElement(isLocked) {
   const lockPositionSwitch = document.createElement('div');
   lockPositionSwitch.classList.add('switch');

@@ -62,6 +62,8 @@ const fetchVideoAll = async (urls, sudo = false) => {
     console.log('fetching requests', requests);
     // await deleteCachedVideo(urls);
     try {
+      displaySpinnerOnTable();
+      disableDeviceIdButton();
       const result = await Promise.allSettled(requests);
       console.log('allSettled result', result);
       // 실패한 것들만 필터링해서 다시 시도
@@ -81,6 +83,7 @@ const fetchVideoAll = async (urls, sudo = false) => {
         cachedOn: getFormattedDate(new Date()),
         deviceId: player.deviceId,
       });
+      enableDeviceIdButton();
     } catch (error) {
       error => console.log(error);
     }

@@ -35,6 +35,11 @@ nav .sidenav-trigger {
   display: inline-block !important;
 }
 
+/* spinner color */
+.spinner-layer {
+  border-color: #f5f5f5;
+}
+
 /* info */
 
 .info {
