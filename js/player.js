@@ -62,8 +62,10 @@ const fetchVideoAll = async (urls, sudo = false) => {
     console.log('fetching requests', requests);
     // await deleteCachedVideo(urls);
     try {
+      if (!sudo) {
       displaySpinnerOnTable();
       disableDeviceIdButton();
+      }
       const result = await Promise.allSettled(requests);
       console.log('allSettled result', result);
       // 실패한 것들만 필터링해서 다시 시도
