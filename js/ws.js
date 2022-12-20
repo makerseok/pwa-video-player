@@ -57,7 +57,9 @@ const initWebsocket = () => {
     userName: 'spacebank',
     password: 'demo00',
   };
-  mqtt = new Paho.MQTT.Client(host, port, getFormattedDate(new Date()));
+  const clientId = 'client-' + Math.random().toString().split('.')[1];
+
+  mqtt = new Paho.MQTT.Client(host, port, clientId);
 
   mqtt.onMessageArrived = onMessageArrived;
   mqtt.connect(options);
