@@ -20,7 +20,7 @@ const setDeviceId = async deviceId => {
       player.companyId = response.data.company_id;
 
       document.querySelector('#device-id').classList.remove('invalid');
-      getApiResponses();
+      await getApiResponses();
     }
   } catch (error) {
     document.querySelector('#device-id').classList.add('invalid');
@@ -164,7 +164,7 @@ player.ready(async function () {
   if (queryStringDeviceId && queryStringCompanyId) {
     this.deviceId = queryStringDeviceId;
     this.companyId = queryStringCompanyId;
-    getApiResponses();
+    await getApiResponses();
   } else {
     const deviceIds = await db.deviceIds.toArray();
     if (deviceIds.length) {
@@ -173,7 +173,7 @@ player.ready(async function () {
 
       this.deviceId = deviceId;
       this.companyId = companyId;
-      getApiResponses();
+      await getApiResponses();
     } else {
       console.log('device id is not defined');
     }

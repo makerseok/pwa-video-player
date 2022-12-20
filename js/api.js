@@ -31,13 +31,13 @@ if (!Promise.allSettled) {
   };
 }
 
-const getApiResponses = (sudo = false) => {
+const getApiResponses = async (sudo = false) => {
   const headers = {
     auth: player.companyId,
     device_id: player.deviceId,
   };
   const endpoint = [BASE_URL + RADS_URL, BASE_URL + DEVICE_URL];
-  Promise.all(endpoint.map(url => axios.get(url, { headers })))
+  await Promise.all(endpoint.map(url => axios.get(url, { headers })))
     .then(([{ data: rad }, { data: device }]) => {
       initPlayer(rad, device, sudo); // response.data.items[]
     })

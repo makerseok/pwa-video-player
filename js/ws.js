@@ -31,7 +31,7 @@ async function onMessageArrived(res) {
           break;
         case 'rad':
           console.log('run getRads!');
-          getApiResponses(true);
+          await getApiResponses(true);
           break;
         case 'screen':
           console.log('run getPlayerUi!');
