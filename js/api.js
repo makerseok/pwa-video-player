@@ -222,7 +222,9 @@ function initPlayer(rad, device, sudo = false) {
     setDeviceConfig(deviceInfo);
     initPlayerUi(pos);
     initPlayerPlaylist(player, playlist, screen);
+    if (!mqtt) {
     initWebsocket();
+    }
   });
 }
 
