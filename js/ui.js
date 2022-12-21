@@ -1,3 +1,4 @@
+const PAGE_SIZE = 10;
 const deviceConfigMapping = {
   device_name: '디바이스명',
   location: '장소',
@@ -116,18 +117,50 @@ const displaySpinnerOnTable = () => {
   displaySpinner(deviceConfigNode);
 };
 
-const appendVideoList = videoList => {
+const createPagination = (length, currentPage) => {
+  const videoPagination = document.querySelector('#video-pagination');
+  const pages = parseInt(length / PAGE_SIZE);
+  const leftArrowClass = currentPage === 1 ? 'disabled' : 'waves-effect';
+  const rightArrowClass =
+    currentPage === pages + 1 ? 'disabled' : 'waves-effect';
+  const leftAnchorAttribute =
+    currentPage === 1
+      ? 'disabled'
+      : `onclick="renderVideoList(player.videoList, ${currentPage - 1})"`;
+  const rightAnchorAttribute =
+    currentPage === pages + 1
+      ? 'disabled'
+      : `onclick="renderVideoList(player.videoList, ${currentPage + 1})"`;
+
+  let paginationInnerHTML = `<li class="${leftArrowClass}"><a ${leftAnchorAttribute}><i class="material-icons">chevron_left</i></a></li>`;
+  for (let i = 1; i <= pages + 1; i++) {
+    const pageClass = currentPage === i ? 'active' : 'waves-effect';
+    paginationInnerHTML += `<li id="page-${i}" class="${pageClass}"><a onclick="renderVideoList(player.videoList, ${i})">${i}</a></li>`;
+  }
+  paginationInnerHTML += `<li class="${rightArrowClass}"><a ${rightAnchorAttribute}><i class="material-icons">chevron_right</i></a></li>`;
+
+  videoPagination.innerHTML = paginationInnerHTML;
+};
+
+const renderVideoList = (videoList, currentPage = 1) => {
   const parentNode = document.querySelector('#video-body');
   removeAllChildNodes(parentNode);
 
-  videoList.forEach(row => {
-    const tr = document.createElement('tr');
-    Object.values(row).forEach(value => {
-      td = createElementWithInnerText('td', value);
-      tr.appendChild(td);
+  videoList
+    .filter((row, index) => {
+      const start = (currentPage - 1) * PAGE_SIZE;
+      const end = currentPage * PAGE_SIZE;
+      if (index >= start && index < end) return true;
+    })
+    .forEach(row => {
+      const tr = document.createElement('tr');
+      Object.values(row).forEach(value => {
+        td = createElementWithInnerText('td', value);
+        tr.appendChild(td);
+      });
+      parentNode.appendChild(tr);
     });
-    parentNode.appendChild(tr);
-  });
+  createPagination(videoList.length, currentPage);
 };
 
 const setDeviceConfig = deviceConfig => {

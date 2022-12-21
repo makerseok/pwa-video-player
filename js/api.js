@@ -211,14 +211,14 @@ function initPlayer(rad, device, sudo = false) {
   player.defaultJobs.push(runoff);
 
   const playlist = itemsToPlaylist(rad);
-  const videoList = itemsToVideoList(rad);
+  player.videoList = itemsToVideoList(rad);
 
   const urls = playlist.map(v => v.sources[0].src).filter(src => src);
   const deduplicatedUrls = [...new Set(urls)];
 
   fetchVideoAll(deduplicatedUrls, sudo).then(() => {
     console.log('finish fetching');
-    appendVideoList(videoList);
+    renderVideoList(player.videoList);
     setDeviceConfig(deviceInfo);
     initPlayerUi(pos);
     initPlayerPlaylist(player, playlist, screen);
