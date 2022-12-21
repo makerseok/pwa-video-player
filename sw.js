@@ -88,7 +88,10 @@ self.addEventListener('fetch', event => {
   // console.log('fetch event', event);
   const scope = self.registration.scope;
   const url = new URL(event.request.url);
-  const queryReplacedUrl = url.href.replace(url.search, '').split('?')[0];
+  const queryReplacedUrl = url.href
+    .replace(url.search, '')
+    .split('?')[0]
+    .split('#')[0];
   if (
     [scope, scope + 'index.html', scope + 'index.htm'].includes(
       queryReplacedUrl,
