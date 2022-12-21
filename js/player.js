@@ -55,31 +55,24 @@ const fetchVideoAll = async (urls, sudo = false) => {
     const videoCaches = await caches.open(VIDEO_CACHE_NAME);
     const keys = await videoCaches.keys();
     const cachedUrls = keys.map(e => e.url);
-
     const targetUrls = urls.filter(e => !cachedUrls.includes(e));
-    const header = { destination: 'video' };
-    const requests = targetUrls.map(url => axios.get(url), { header });
-    console.log('fetching requests', requests);
-    // await deleteCachedVideo(urls);
+
+    console.log('fetching requests', targetUrls.length);
+
     try {
       if (!sudo) {
         displaySpinnerOnTable();
         disableDeviceIdButton();
       }
-      const result = await Promise.allSettled(requests);
-      console.log('allSettled result', result);
-      // 실패한 것들만 필터링해서 다시 시도
-      result.forEach(async (val, index) => {
+
+      for (const url of targetUrls) {
         try {
-          // 실패한 요청 다시 시도
-          if (val.status === 'rejected') {
-            console.log('fetching 재시도', targetUrls[index]);
-            await requests[index];
-          }
+          await axios.get(url);
         } catch (error) {
-          error => console.log('error on retry', error);
+          console.log('Error on fetching ' + url, error);
         }
-      });
+      }
+
       const reportDB = await db.open();
       await reportDB.caches.add({
         cachedOn: getFormattedDate(new Date()),
@@ -87,7 +80,7 @@ const fetchVideoAll = async (urls, sudo = false) => {
       });
       enableDeviceIdButton();
     } catch (error) {
-      error => console.log(error);
+      console.log(error);
     }
   }
 };
