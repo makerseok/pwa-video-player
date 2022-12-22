@@ -94,26 +94,34 @@ const removeAllChildNodes = parent => {
 
 const displaySpinner = node => {
   node.innerHTML = `
-<td class="center" colspan="6">
-  <div class="preloader-wrapper big active">
-    <div class="spinner-layer">
-      <div class="circle-clipper left">
-        <div class="circle"></div>
-      </div><div class="gap-patch">
-        <div class="circle"></div>
-      </div><div class="circle-clipper right">
-        <div class="circle"></div>
+    <td class="center" colspan="6">
+      <div class="preloader-wrapper big active">
+        <div class="spinner-layer">
+          <div class="circle-clipper left">
+            <div class="circle"></div>
+          </div><div class="gap-patch">
+            <div class="circle"></div>
+          </div><div class="circle-clipper right">
+            <div class="circle"></div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</td>
-`;
+    </td>
+  `;
+};
+
+const displaySpinnerWithPercent = node => {
+  node.innerHTML = `
+    <td class="center" colspan="6">
+      <progress-spinner stroke="4" radius="60" progress="0"></progress-spinner>
+    </td>
+  `;
 };
 
 const displaySpinnerOnTable = () => {
   const videoListNode = document.querySelector('#video-body');
   const deviceConfigNode = document.querySelector('#device-config');
-  displaySpinner(videoListNode);
+  displaySpinnerWithPercent(videoListNode);
   displaySpinner(deviceConfigNode);
 };
 
@@ -251,3 +259,76 @@ const showPlayerMobile = () => {
 const hidePlayerMobile = () => {
   playerDOM.classList.add('mobile-hidden');
 };
+
+class ProgressSpinner extends HTMLElement {
+  constructor() {
+    super();
+    const stroke = this.getAttribute('stroke');
+    const radius = this.getAttribute('radius');
+    const normalizedRadius = radius - stroke * 2;
+    this._circumference = normalizedRadius * 2 * Math.PI;
+
+    this._root = this.attachShadow({ mode: 'open' });
+    this._root.innerHTML = `
+      <div class="spinner-wrapper">
+        <svg height="${radius * 2}" width="${radius * 2}">
+          <circle
+            stroke="#f5f5f5"
+            stroke-dasharray="${this._circumference} ${this._circumference}"
+            style="stroke-dashoffset:${this._circumference}"
+            stroke-width="${stroke}"
+            fill="transparent"
+            r="${normalizedRadius}"
+            cx="${radius}"
+            cy="${radius}"
+          />
+        </svg>
+        <strong class="value"></strong>
+      </div>
+      <style>
+        circle {
+          transition: stroke-dashoffset 0.35s;
+          transform: rotate(-90deg);
+          transform-origin: 50% 50%;
+        }
+
+        .value {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          top: 0;
+          text-align: center;
+          color: #f5f5f5;
+          font-size: 16px;
+          line-height: 120px;
+        }
+        .spinner-wrapper {
+          position: relative;
+          text-align: center;
+        }
+      </style>
+    `;
+  }
+
+  setProgress(percent) {
+    const offset = this._circumference - (percent / 100) * this._circumference;
+    const circle = this._root.querySelector('circle');
+    circle.style.strokeDashoffset = offset;
+
+    const value = this._root.querySelector('.value');
+    value.innerHTML = percent + '%';
+  }
+
+  static get observedAttributes() {
+    return ['progress'];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'progress') {
+      this.setProgress(newValue);
+    }
+  }
+}
+
+window.customElements.define('progress-spinner', ProgressSpinner);

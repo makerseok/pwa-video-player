@@ -56,18 +56,20 @@ const fetchVideoAll = async (urls, sudo = false) => {
     const keys = await videoCaches.keys();
     const cachedUrls = keys.map(e => e.url);
     const targetUrls = urls.filter(e => !cachedUrls.includes(e));
+    const total = targetUrls.length;
 
-    console.log('fetching requests', targetUrls.length);
+    console.log('number of fetching requests', total);
 
     try {
       if (!sudo) {
         displaySpinnerOnTable();
         disableDeviceIdButton();
       }
-
-      for (const url of targetUrls) {
+      const progressSpinner = document.querySelector('progress-spinner');
+      for (const [index, url] of targetUrls.entries()) {
         try {
           await axios.get(url);
+          progressSpinner.setProgress(parseInt((index / total) * 100));
         } catch (error) {
           console.log('Error on fetching ' + url, error);
         }
