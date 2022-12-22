@@ -68,8 +68,8 @@ const fetchVideoAll = async (urls, sudo = false) => {
       const progressSpinner = document.querySelector('progress-spinner');
       for (const [index, url] of targetUrls.entries()) {
         try {
-          await axios.get(url);
           progressSpinner.setProgress(parseInt((index / total) * 100));
+          await axios.get(url);
         } catch (error) {
           console.log('Error on fetching ' + url, error);
         }
