@@ -322,12 +322,19 @@ async function gotoPlayableVideo(playlist, currentIndex) {
     .filter(e => e.distance > 0)
     .concat(distances.filter(e => e.distance < 0));
 
+  let success = false;
   for (let i = 0; i < sortedDistances.length; i++) {
     if (await isCached(playlist[sortedDistances[i].idx].sources[0].src)) {
       player.playlist.currentItem(sortedDistances[i].idx);
+      success = true;
       console.log('go to', sortedDistances[i].idx);
       break;
     }
+  }
+  if (!success) {
+    player.playlist.currentItem(currentIndex);
+    console.log('go to', currentIndex);
+    player.play();
   }
 }
 
