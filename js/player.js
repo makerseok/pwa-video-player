@@ -311,6 +311,19 @@ player.on('play', () => {
   }
 });
 
+player.on('seeking', () => {
+  const playlist = player.playlist();
+  const currentIndex = player.playlist.currentIndex();
+
+  playlist[currentIndex].report.PLAY_ON = getFormattedDate(new Date());
+
+  console.log(
+    'PLAY_ON modified when seeking!',
+    playlist[currentIndex].report.PLAY_ON,
+  );
+  player.playlist(playlist, currentIndex);
+});
+
 player.on('ended', async function () {
   const playlist = this.playlist();
   const currentIndex = this.playlist.currentIndex();
