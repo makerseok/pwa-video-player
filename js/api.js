@@ -31,6 +31,11 @@ if (!Promise.allSettled) {
   };
 }
 
+/**
+ * 일반재생목록과 device 정보를 api로 받아온 뒤 ui 및 player를 초기화
+ *
+ * @param { boolean } [sudo=false] true일 시 cached 여부에 상관없이 캐싱되지 않은 비디오 fetch
+ */
 const getApiResponses = async (sudo = false) => {
   const headers = {
     auth: player.companyId,
@@ -46,6 +51,15 @@ const getApiResponses = async (sudo = false) => {
     });
 };
 
+/**
+ * hivestack url에 광고 정보를 요청
+ * retry 횟수 내에서 성공할 때까지 재귀적으로 실행
+ * 실패시 { success: false } 반환
+ *
+ * @param {string} hivestackUrl 요청 대상 url
+ * @param {number} [retry=0] 현재 재시도 횟수
+ * @return { Promise<{ Object }> } hivestack 광고 정보
+ */
 const getUrlFromHS = async (hivestackUrl, retry = 0) => {
   let hivestackInfo = {};
 
@@ -72,8 +86,9 @@ const getUrlFromHS = async (hivestackUrl, retry = 0) => {
   return hivestackInfo;
 };
 
-const fetchHivestackVideo = async () => {};
-
+/**
+ * 서버에서 device의 player 위치 정보를 받아 ui를 갱신
+ */
 const getPlayerUi = async () => {
   const headers = {
     auth: player.companyId,
@@ -90,6 +105,11 @@ const getPlayerUi = async () => {
   initPlayerUi(position);
 };
 
+/**
+ * 파라미터로 받은 player 위치, 크기 정보를 서버로 전송
+ *
+ * @param { Object } position player 위치 정보
+ */
 const postPlayerUi = async position => {
   const headers = {
     auth: player.companyId,
@@ -102,6 +122,12 @@ const postPlayerUi = async position => {
     .catch(error => console.log(error));
 };
 
+/**
+ * 비디오 실행 결과를 서버로 post
+ *
+ * @param { Object[] } data 비디오 실행 결과
+ * @return { any | Error } axios response 또는 Error
+ */
 const postReport = async data => {
   const headers = {
     auth: player.companyId,
@@ -114,6 +140,11 @@ const postReport = async data => {
   }
 };
 
+/**
+ * 웹소켓 message에 대한 응답을 post
+ *
+ * @param {{ event:string, uuid:string }} data 이벤트, UUII 정보
+ */
 const postWebsocketResult = async data => {
   const headers = {
     auth: player.companyId,
@@ -126,6 +157,9 @@ const postWebsocketResult = async data => {
   }
 };
 
+/**
+ * 긴급재생목록을 받아온 뒤 cron으로 schedule
+ */
 const getEads = async () => {
   const headers = {
     auth: player.companyId,
@@ -135,6 +169,11 @@ const getEads = async () => {
   scheduleEads(response.data);
 };
 
+/**
+ * 긴급재생목록 schedule 함수
+ *
+ * @param {{ code: string, message:string, items: Object[] }} eadData 서버에서 api를 통해 전달받은 긴급재생목록 정보
+ */
 const scheduleEads = eadData => {
   player.jobs.forEach(e => {
     e.stop();
@@ -171,6 +210,13 @@ const scheduleEads = eadData => {
   });
 };
 
+/**
+ * 일반재생목록과 플레이어 정보를 받아 UI 및 player를 초기화
+ *
+ * @param { Object[] } rad 서버에서 api를 통해 전달받은 일반재생목록 정보
+ * @param { Object } device 서버에서 api를 통해 전달받은 플레이어 정보
+ * @param { boolean } [sudo=false] true일 시 cached 여부에 상관없이 캐싱되지 않은 비디오 fetch
+ */
 function initPlayer(rad, device, sudo = false) {
   const screen = rad.device_code;
   const { code, message, device_id, company_id, ...deviceInfo } = device;
@@ -221,13 +267,19 @@ function initPlayer(rad, device, sudo = false) {
     renderVideoList(player.videoList);
     setDeviceConfig(deviceInfo);
     initPlayerUi(pos);
-    initPlayerPlaylist(player, playlist, screen);
+    initPlayerPlaylist(playlist, screen);
     if (!mqtt) {
       initWebsocket();
     }
   });
 }
 
+/**
+ * 일반재생목록 정보를 UI에 표시하기 위해 정제
+ *
+ * @param { code: string, message:string, items: Object[] } radList 서버에서 api를 통해 전달받은 일반재생목록 정보
+ * @return { Object[] } 정제된 Array
+ */
 function itemsToVideoList(radList) {
   return radList.items.map((v, index) => {
     return {
@@ -241,6 +293,12 @@ function itemsToVideoList(radList) {
   });
 }
 
+/**
+ * 일반재생목록 정보를 playlist로 사용하기 위해 정제
+ *
+ * @param { code: string, message:string, items: Object[] } radData 서버에서 api를 통해 전달받은 일반재생목록 정보
+ * @return { Object[] } 정제된 Array
+ */
 function itemsToPlaylist(radData) {
   return radData.items.map(v => {
     return {
@@ -260,6 +318,12 @@ function itemsToPlaylist(radData) {
   });
 }
 
+/**
+ * 위치 및 크기 조정 가능 여부를 서버에 전송
+ *
+ * @param { boolean } locked 위치 및 크기 잠금 여부
+ * @return { any } axios response
+ */
 const postPositionLocked = locked => {
   const headers = {
     auth: player.companyId,

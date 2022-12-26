@@ -35,6 +35,12 @@ var intersectionObserver = new IntersectionObserver(function (entries) {
 });
 intersectionObserver.observe(playerDOM);
 
+/**
+ * player가 잠금 상태가 아닐 경우 위치 및 크기 정보를 반올림한 값을 서버로 업로드
+ * 업로드 성공 시 ui에 반영
+ *
+ * @param { Object } position player 위치 및 크기 정보
+ */
 const applyPosition = position => {
   if (player.locked) return;
   for (key in position) {
@@ -46,7 +52,11 @@ const applyPosition = position => {
   });
 };
 
-// popup 노출
+/**
+ * 입력받은 position 객체를 player DOM 요소에 적용
+ *
+ * @param { Object } position player 위치 및 크기 정보
+ */
 const initPlayerUi = position => {
   const { width, height, ...offset } = position;
 
@@ -79,6 +89,14 @@ const initPlayerUi = position => {
       },
     });
 };
+
+/**
+ * 태그와 내부 텍스트가 있는 HTMLElement를 만듭니다.
+ *
+ * @param { string } tag - 생성하려는 HTMLElement의 태그 이름
+ * @param { string } text - HTMLElement에 표시할 텍스트
+ * @returns { HTMLElement } 태그와 텍스트가 설정된 HTMLElement
+ */
 const createElementWithInnerText = (tag, text) => {
   const element = document.createElement(tag);
   element.innerText = text;
@@ -86,12 +104,22 @@ const createElementWithInnerText = (tag, text) => {
   return element;
 };
 
+/**
+ * 상위 노드에서 모든 하위 노드를 제거
+ *
+ * @param { HTMLElement } parent 상위 노드
+ */
 const removeAllChildNodes = parent => {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
   }
 };
 
+/**
+ * 입력받은 노드에 spinner를 표시하는 함수
+ *
+ * @param { HTMLElement } node spinner를 표시할 노드
+ */
 const displaySpinner = node => {
   node.innerHTML = `
     <td class="center" colspan="6">
@@ -110,6 +138,11 @@ const displaySpinner = node => {
   `;
 };
 
+/**
+ * 입력받은 노드에 진행 상황을 표시하는 progress-spinner를 표시하는 함수
+ *
+ * @param { HTMLElement } node spinner를 표시할 노드
+ */
 const displaySpinnerWithPercent = node => {
   node.innerHTML = `
     <td class="center" colspan="6">
@@ -118,6 +151,9 @@ const displaySpinnerWithPercent = node => {
   `;
 };
 
+/**
+ * 비디오 목록과 설정 정보에 spinner 표시
+ */
 const displaySpinnerOnTable = () => {
   const videoListNode = document.querySelector('#video-body');
   const deviceConfigNode = document.querySelector('#device-config');
@@ -125,6 +161,12 @@ const displaySpinnerOnTable = () => {
   displaySpinner(deviceConfigNode);
 };
 
+/**
+ * 비디오 목록의 길이와 현재 페이지를 기반으로 pagination 생성
+ *
+ * @param { number } length 비디오 목록의 길이
+ * @param { number } currentPage 현재 페이지 번호
+ */
 const createPagination = (length, currentPage) => {
   const videoPagination = document.querySelector('#video-pagination');
   const pages = parseInt(length / PAGE_SIZE);
@@ -150,6 +192,12 @@ const createPagination = (length, currentPage) => {
   videoPagination.innerHTML = paginationInnerHTML;
 };
 
+/**
+ * 비디오 목록과 현재 페이지 번호를 받아 해당 페이지의 비디오 목록 렌더링
+ *
+ * @param { Object[] } videoList 렌더링할 비디오 목록
+ * @param { number } [currentPage=1] 현재 페이지 번호
+ */
 const renderVideoList = (videoList, currentPage = 1) => {
   const parentNode = document.querySelector('#video-body');
   removeAllChildNodes(parentNode);
@@ -171,6 +219,11 @@ const renderVideoList = (videoList, currentPage = 1) => {
   createPagination(videoList.length, currentPage);
 };
 
+/**
+ * 디바이스 정보를 받아 설정 정보 UI 렌더링
+ *
+ * @param { Object } deviceConfig 디바이스 정보
+ */
 const setDeviceConfig = deviceConfig => {
   const parentNode = document.querySelector('#device-config');
   removeAllChildNodes(parentNode);
@@ -192,6 +245,11 @@ const setDeviceConfig = deviceConfig => {
   parentNode.appendChild(lockPositionSwitch);
 };
 
+/**
+ * 설정 정보 UI를 입력받은 position 객체의 값으로 변경
+ *
+ * @param { Object } position
+ */
 const updateDevicePositionUi = position => {
   for (key in position) {
     document.querySelector(`td[name="${key}"]`).innerText = position[key];

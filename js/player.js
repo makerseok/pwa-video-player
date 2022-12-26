@@ -1,6 +1,11 @@
 const VIDEO_CACHE_NAME = 'site-video-v4';
 const DEVICE_ID_AUTH = '5CAE46D0460AFC9035AFE9AE32CD146539EDF83B';
 
+/**
+ * 전달받은 deviceId 값이 유효할 경우 player 초기화
+ *
+ * @param { number } deviceId
+ */
 const setDeviceId = async deviceId => {
   const headers = {
     auth: DEVICE_ID_AUTH,
@@ -27,6 +32,11 @@ const setDeviceId = async deviceId => {
   }
 };
 
+/**
+ * 전달받은 url 목록에 해당하는 캐시 삭제
+ *
+ * @param { string[] } urls 삭제 대상 url 목록
+ */
 const deleteCachedVideo = async urls => {
   const cachedVideo = await caches.open(VIDEO_CACHE_NAME);
   const videoUrls = await cachedVideo.keys();
@@ -38,6 +48,12 @@ const deleteCachedVideo = async urls => {
   });
 };
 
+/**
+ * 모든 비디오 URL을 가져와 캐시
+ *
+ * @param { string[] } urls 캐시할 URL 목록
+ * @param { boolean } [sudo=false] true일 경우 이전 캐시 이력을 확인하지 않고 캐시
+ */
 const fetchVideoAll = async (urls, sudo = false) => {
   const oldCachesCount = await db.caches
     .where('cachedOn')
@@ -87,6 +103,13 @@ const fetchVideoAll = async (urls, sudo = false) => {
   }
 };
 
+/**
+ * Date 객체에 입력받은 만큼 분 추가
+ *
+ * @param { Date } date 분을 추가할 Date 객체
+ * @param { number } min Date 객체에 추가할 분 수
+ * @return { Date } 원래 Date 객체에 분을 추가한 새 Date 객체
+ */
 const addMinutes = (date, min) => {
   const addedDate = new Date(date);
   addedDate.setMinutes(addedDate.getMinutes() + min);
@@ -94,10 +117,23 @@ const addMinutes = (date, min) => {
   return addedDate;
 };
 
+/**
+ * Date 객체를 입력받아 "hh:MM:ss" 형식의 문자열을 반환
+ *
+ * @param { Date } date Date 객체
+ * @returns { string } "hh:MM:ss" 형식의 문자열
+ */
 const gethhMMss = date => {
   return date.toTimeString().split(' ')[0];
 };
 
+/**
+ * Date 객체의 시간을 입력받은 "hh:MM:ss"로 변경한 새로운 객체 반환
+ *
+ * @param { Date } date 수정할 Date 객체
+ * @param { string } hhMMss "hh:MM:ss" 형식의 문자열
+ * @returns { Date } 수정된 Date 객체
+ */
 const sethhMMss = (date, hhMMss) => {
   const modifiedDate = new Date(date);
   const [hh, MM, ss] = hhMMss.split(':');
@@ -107,12 +143,24 @@ const sethhMMss = (date, hhMMss) => {
   return modifiedDate;
 };
 
+/**
+ * "hh:MM:ss" 형식 문자열을 "ss MM hh * * *" 형식 문자열로 변환
+ *
+ * @param { string } hhMMss "hh:MM:ss" 형식 문자열
+ * @returns { string } "ss MM hh * * *" 형식 문자열
+ */
 const hhMMssToCron = hhMMss => {
   const [hh, MM, ss] = hhMMss.split(':');
 
   return `${ss} ${MM} ${hh} * * *`;
 };
 
+/**
+ * Date 객체를 사용하여 "yyyymmdd" 형식의 문자열을 반환
+ *
+ * @param { Date } date Date 객체
+ * @returns { string } "yyyymmdd" 형식 문자열
+ */
 const getyymmdd = date => {
   return (
     date.getFullYear().toString() +
@@ -124,6 +172,12 @@ const getyymmdd = date => {
   );
 };
 
+/**
+ * Date 객체를 입력받아 "yyyymmdd hh:MM:ss" 형식 문자열 반환
+ *
+ * @param { Date } date Date 객체
+ * @returns { string } "yymmdd hh:MM:ss" 형식 문자열
+ */
 const getFormattedDate = date => {
   const yymmdd = getyymmdd(date);
   const time = gethhMMss(date);
@@ -131,6 +185,12 @@ const getFormattedDate = date => {
   return `${yymmdd} ${time}`;
 };
 
+/**
+ * 하이픈이 없는 "yyyymmdd" 형식의 문자열에 하이픈 추가
+ *
+ * @param { string } dateString "yyyymmdd" 형식 문자열
+ * @returns { string } 하이픈이 추가된 "yyyy-mm-dd" 형식 문자열
+ */
 const addHyphen = dateString => {
   const addedDateString = dateString.replace(
     /(\d{4})(\d{2})(\d{2})/g,
@@ -192,6 +252,12 @@ player.on('touchstart', () => {
   player.exitFullWindow();
 });
 
+/**
+ * 해당 url의 캐시 여부 반환
+ *
+ * @param { string } url 캐시 여부를 확인할 url
+ * @returns { Promise<Response | null> } 해당 url 캐시 여부
+ */
 const isCached = async url => {
   const cachedVideo = await caches.open(VIDEO_CACHE_NAME);
   const cachedResponse = await cachedVideo.match(url);
@@ -275,6 +341,12 @@ player.on('ended', async function () {
   addReport(currentItem);
 });
 
+/**
+ * 마지막으로 재생된 비디오의 인덱스를 데이터베이스에 저장
+ *
+ * @param { number } videoIndex - 비디오 인덱스
+ * @param { string } PlayOn - 비디오가 재생된 날짜, "yyyymmdd hh:MM:ss" 형식
+ */
 const storeLastPlayedVideo = async (videoIndex, PlayOn) => {
   const storedOn = getFormattedDate(new Date());
   await db.lastPlayed.put({
@@ -285,12 +357,23 @@ const storeLastPlayedVideo = async (videoIndex, PlayOn) => {
   });
 };
 
+/**
+ * 데이터베이스에 저장되어있는 마지막으로 재생된 비디오 인덱스 반환
+ *
+ * @return { number } 마지막으로 재생된 비디오 인덱스
+ */
 const getLastPlayedIndex = async () => {
   const index = await db.lastPlayed.get(player.deviceId);
   return index || 0;
 };
 
-const initPlayerPlaylist = (player, playlist, screen) => {
+/**
+ * player playlist 초기화
+ *
+ * @param { Object[] } playlist 재생목록
+ * @param { string } screen device code
+ */
+const initPlayerPlaylist = (playlist, screen) => {
   console.log('initPlayerPlaylist');
   totalRT = playlist.map(v => {
     return parseInt(v.runningTime) * 1000;
@@ -314,6 +397,12 @@ const initPlayerPlaylist = (player, playlist, screen) => {
     });
 };
 
+/**
+ * 가장 가까운 캐시되어있는 비디오로 이동
+ *
+ * @param { Object[] } playlist 재생목록
+ * @param { number } currentIndex 현재 index
+ */
 async function gotoPlayableVideo(playlist, currentIndex) {
   const distances = playlist.map((e, idx) => {
     return { distance: idx - currentIndex, idx: idx };
@@ -338,6 +427,12 @@ async function gotoPlayableVideo(playlist, currentIndex) {
   }
 }
 
+/**
+ * hivestack 비디오일 경우 재생완료 post한 뒤 데이터베이스에 report 저장
+ * 저장된지 5분 이상 경과된 report가 있을 경우 모든 report 서버로 전송
+ *
+ * @param { Object } currentItem playlist에서 재생 완료한 item
+ */
 async function addReport(currentItem) {
   if (currentItem.reportUrl) {
     axios.get(currentItem.reportUrl).catch(error => {
@@ -366,6 +461,9 @@ async function addReport(currentItem) {
   }
 }
 
+/**
+ * 데이터베이스에 존재하는 모든 report 서버로 post
+ */
 const reportAll = async () => {
   reports = await db.reports.toArray();
   const result = await postReport(reports);
@@ -378,6 +476,13 @@ const reportAll = async () => {
   }
 };
 
+/**
+ * 해당하는 Date에 playlist 재생하도록 cron 등록
+ * playlist에 있는 비디오가 hivestack 하나일 경우 재생 2분 전에 hivestack 광고 정보를 요청
+ *
+ * @param { Date } date 비디오를 재생할 날짜와 시간.
+ * @param { Object } playlist 재생목록
+ */
 function cronVideo(date, playlist) {
   if (playlist.length === 1 && playlist[0].isHivestack === 'Y') {
     const before2Min = addMinutes(date, -2);
@@ -418,6 +523,14 @@ function cronVideo(date, playlist) {
   }
 }
 
+/**
+ * playlist에 있는 비디오들을 fetching한 뒤 fetching에 성공할 경우 해당 비디오 schedule
+ *
+ * @param { Date } startDate schedule 기준 일자
+ * @param { Object[] } playlist 재생목록
+ * @param { boolean } [isPrimary=false] true일 경우 startDate 상관없이 로직 진행
+ * @return { Promise<boolean | undefined> } fetch 성공 시 true 반환
+ */
 const scheduleVideo = async (startDate, playlist, isPrimary = false) => {
   const hyphenStartDate = new Date(addHyphen(startDate));
   if (isPrimary) {
@@ -435,6 +548,9 @@ const scheduleVideo = async (startDate, playlist, isPrimary = false) => {
   }
 };
 
+/**
+ * service worker 및 storage 초기화
+ */
 const initialization = async () => {
   const reportDB = await db.open();
   await reportDB.delete();
