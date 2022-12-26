@@ -373,7 +373,7 @@ const storeLastPlayedVideo = async (videoIndex, PlayOn) => {
 /**
  * 데이터베이스에 저장되어있는 마지막으로 재생된 비디오 인덱스 반환
  *
- * @return { number } 마지막으로 재생된 비디오 인덱스
+ * @return { Promise<number> } 마지막으로 재생된 비디오 인덱스
  */
 const getLastPlayedIndex = async () => {
   const index = await db.lastPlayed.get(player.deviceId);
@@ -495,8 +495,9 @@ const reportAll = async () => {
  *
  * @param { Date } date 비디오를 재생할 날짜와 시간.
  * @param { Object } playlist 재생목록
+ * @param { boolean } [isPrimary=false] true일 경우 startDate 상관없이 로직 진행
  */
-function cronVideo(date, playlist) {
+function cronVideo(date, playlist, isPrimary = false) {
   if (playlist.length === 1 && playlist[0].isHivestack === 'Y') {
     const before2Min = addMinutes(date, -2);
     const job = Cron(
@@ -524,11 +525,20 @@ function cronVideo(date, playlist) {
     const job = Cron(
       date,
       { maxRuns: 1, context: playlist },
-      (_self, context) => {
+      async (_self, context) => {
         console.log('cron context', context);
         player.playlist(context);
-        player.isPrimaryPlaylist = false;
-        player.playlist.currentItem(0);
+        if (isPrimary) {
+          player.isPrimaryPlaylist = true;
+          const lastPlayed = await getLastPlayedIndex();
+          await gotoPlayableVideo(
+            player.primaryPlaylist,
+            lastPlayed.videoIndex,
+          );
+        } else {
+          player.isPrimaryPlaylist = false;
+          player.playlist.currentItem(0);
+        }
       },
     );
     player.jobs.push(job);
@@ -542,22 +552,25 @@ function cronVideo(date, playlist) {
  * @param { Date } startDate schedule 기준 일자
  * @param { Object[] } playlist 재생목록
  * @param { boolean } [isPrimary=false] true일 경우 startDate 상관없이 로직 진행
- * @return { Promise<boolean | undefined> } fetch 성공 시 true 반환
+ * @return { Promise<boolean | Error> } fetch 성공 시 true 반환
  */
 const scheduleVideo = async (startDate, playlist, isPrimary = false) => {
   const hyphenStartDate = new Date(addHyphen(startDate));
   if (isPrimary) {
-    cronVideo(hyphenStartDate, playlist);
+    cronVideo(hyphenStartDate, playlist, true);
   } else if (hyphenStartDate > new Date()) {
     const urls = playlist.map(v => v.sources[0].src).filter(src => src);
 
     const deduplicatedUrls = [...new Set(urls)];
-    return Promise.all(
-      deduplicatedUrls.map(url => axios.get(url, { mode: 'no-cors' })),
-    ).then(() => {
+    try {
+      for (const [index, url] of deduplicatedUrls.entries()) {
+        await axios.get(url);
+      }
       cronVideo(hyphenStartDate, playlist);
       return true;
-    });
+    } catch (error) {
+      return error;
+    }
   }
 };
 
