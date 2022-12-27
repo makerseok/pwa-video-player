@@ -206,6 +206,7 @@ let player = videojs(document.querySelector('.video-js'), {
   enableSourceset: true,
   controls: false,
   preload: 'none',
+  loadingSpinner: false,
 });
 
 player.ready(async function () {
