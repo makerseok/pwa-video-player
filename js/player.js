@@ -210,6 +210,7 @@ let player = videojs(document.querySelector('.video-js'), {
 });
 
 player.ready(async function () {
+  player.defaultJobs = [];
   console.log('player ready');
 
   const params = new URLSearchParams(location.search);
@@ -306,7 +307,7 @@ player.on('play', () => {
     player.pause();
   }
 
-  const date = gethhMMss(new Date());
+  const date = Math.floor(new Date().getTime() / 1000);
   if (date < player.runon || date > player.runoff) {
     player.pause();
   }

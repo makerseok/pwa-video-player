@@ -236,14 +236,18 @@ function initPlayer(rad, device, sudo = false) {
   player.locked = locked === 'Y' ? true : false;
   const pos = { top, left, width, height };
   player.position = pos;
-  player.runon = on;
-  player.runoff = off;
+  const onDate = sethhMMss(new Date(), on);
+  const offDate = sethhMMss(new Date(), off);
 
-  player.defaultJobs = [];
+  player.runon = Math.floor(onDate.getTime() / 1000);
+  player.runoff =
+    offDate > onDate
+      ? Math.floor(offDate.getTime() / 1000)
+      : Math.floor(addMinutes(offDate, 1440).getTime() / 1000);
+
   player.defaultJobs.forEach(e => {
     e.stop();
   });
-  player.defaultJobs = [];
   const runon = Cron(hhMMssToCron(on), () => {
     console.log('cron info - play on', hhMMssToCron(on));
     player.playlist.currentItem(0);
