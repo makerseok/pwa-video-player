@@ -245,20 +245,8 @@ function initPlayer(rad, device, sudo = false) {
       ? Math.floor(offDate.getTime() / 1000)
       : Math.floor(addMinutes(offDate, 1440).getTime() / 1000);
 
-  player.defaultJobs.forEach(e => {
-    e.stop();
-  });
-  const runon = Cron(hhMMssToCron(on), () => {
-    console.log('cron info - play on', hhMMssToCron(on));
-    player.playlist.currentItem(0);
-    player.play();
-  });
-  player.defaultJobs.push(runon);
-  const runoff = Cron(hhMMssToCron(off), () => {
-    console.log('cron info - play off', hhMMssToCron(off));
-    player.pause();
-  });
-  player.defaultJobs.push(runoff);
+  removeDefaultJobs();
+  scheduleOnOff(on, off);
 
   const playlist = itemsToPlaylist(rad);
   player.videoList = itemsToVideoList(rad);
@@ -295,6 +283,53 @@ function itemsToVideoList(radList) {
       end: new Date(v.END_DT).toLocaleDateString(),
     };
   });
+}
+
+/**
+ * player에 저장된 모든 defaultJobs 정지 및 제거
+ *
+ */
+const removeDefaultJobs = () => {
+  player.defaultJobs.forEach(e => {
+    e.stop();
+  });
+  player.defaultJobs = [];
+};
+
+/**
+ * 파라미터로 받아온 player 시작, 종료 시각 스케쥴링
+ *
+ * @param { string } on "HH:MM:SS" 형식의 시작 시각
+ * @param { string } off "HH:MM:SS" 형식의 종료 시각
+ */
+const scheduleOnOff = (on, off) => {
+  const runon = Cron(hhMMssToCron(on), async () => {
+    console.log('cron info - play on', hhMMssToCron(on));
+    player.playlist(player.primaryPlaylist);
+    player.isEnd = false;
+    player.playlist.currentItem(0);
+    player.currentTime(0);
+    await player.play();
+  });
+  player.defaultJobs.push(runon);
+  const runoff = scheduleOff(off);
+  player.defaultJobs.push(runoff);
+};
+
+/**
+ * 플레이어 종료 시각 스케쥴링
+ *
+ * @param { string } off "HH:MM:SS" 형식의 종료 시각
+ * @return { Cron } 플레이어 종료 Cron 객체
+ */
+function scheduleOff(off) {
+  const job = Cron(hhMMssToCron(off), () => {
+    console.log('cron info - play off', hhMMssToCron(off));
+    player.pause();
+    player.isEnd = true;
+  });
+  job.isEnd = true;
+  return job;
 }
 
 /**
