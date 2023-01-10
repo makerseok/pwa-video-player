@@ -228,6 +228,7 @@ function initPlayer(rad, device, sudo = false) {
   player.locked = locked === 'Y' ? true : false;
   const pos = { top, left, width, height };
   player.position = pos;
+  player.isEnd = false;
   const onDate = sethhMMss(new Date(), on);
   const offDate = sethhMMss(new Date(), off);
 
@@ -276,7 +277,20 @@ const removeDefaultJobs = () => {
  * @param { string } off "HH:MM:SS" 형식의 종료 시각
  */
 const scheduleOnOff = (on, off) => {
-  const runon = Cron(hhMMssToCron(on), async () => {
+  const runon = scheduleOn(on);
+  player.defaultJobs.push(runon);
+  const runoff = scheduleOff(off);
+  player.defaultJobs.push(runoff);
+};
+
+/**
+ * 플레이어 시작 시각 스케쥴링
+ *
+ * @param { string } on "HH:MM:SS" 형식의 시작 시각
+ * @return { Cron } 플레이어 시작 Cron 객체
+ */
+function scheduleOn(on) {
+  const job = Cron(hhMMssToCron(on), async () => {
     console.log('cron info - play on', hhMMssToCron(on));
     player.playlist(player.primaryPlaylist);
     player.isEnd = false;
@@ -284,10 +298,8 @@ const scheduleOnOff = (on, off) => {
     player.currentTime(0);
     await player.play();
   });
-  player.defaultJobs.push(runon);
-  const runoff = scheduleOff(off);
-  player.defaultJobs.push(runoff);
-};
+  return job;
+}
 
 /**
  * 플레이어 종료 시각 스케쥴링

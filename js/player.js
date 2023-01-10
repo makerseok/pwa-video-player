@@ -310,7 +310,7 @@ player.on('play', () => {
   }
 
   const date = Math.floor(new Date().getTime() / 1000);
-  if (date < player.runon || date > player.runoff) {
+  if (date < player.runon || date > player.runoff || player.isEnd) {
     player.pause();
   }
 });
@@ -432,6 +432,8 @@ async function gotoPlayableVideo(playlist, currentIndex) {
   for (let i = 0; i < sortedDistances.length; i++) {
     if (await isCached(playlist[sortedDistances[i].idx].sources[0].src)) {
       player.playlist.currentItem(sortedDistances[i].idx);
+      player.currentTime(0);
+      await player.play();
       success = true;
       console.log('go to', sortedDistances[i].idx);
       break;
@@ -439,6 +441,7 @@ async function gotoPlayableVideo(playlist, currentIndex) {
   }
   if (!success) {
     player.playlist.currentItem(currentIndex);
+    player.currentTime(0);
     console.log('go to', currentIndex);
     await player.play();
   }
@@ -532,6 +535,7 @@ function cronVideo(date, playlist, isPrimary = false) {
       async (_self, context) => {
         console.log('cron context', context);
         player.playlist(context);
+        player.isEnd = false;
         if (isPrimary) {
           player.isPrimaryPlaylist = true;
           const lastPlayed = await getLastPlayedIndex();
@@ -542,6 +546,7 @@ function cronVideo(date, playlist, isPrimary = false) {
         } else {
           player.isPrimaryPlaylist = false;
           player.playlist.currentItem(0);
+          player.currentTime(0);
         }
       },
     );
