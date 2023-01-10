@@ -239,10 +239,10 @@ player.ready(async function () {
   this.jobs = [];
 });
 
-player.on('enterFullWindow', () => {
+player.on('enterFullWindow', async () => {
   player.isVisible = true;
   showPlayerMobile();
-  player.play();
+  await player.play();
 });
 
 player.on('exitFullWindow', () => {
@@ -346,7 +346,7 @@ player.on('ended', async function () {
   } else if (await isCached(playlist[nextIndex].sources[0].src)) {
     console.log('video is cached, index is', nextIndex);
     if (currentIndex === nextIndex) {
-      player.play();
+      await player.play();
     }
     player.playlist.next();
   } else {
@@ -404,7 +404,7 @@ const initPlayerPlaylist = (playlist, screen) => {
       console.log('######## last played index is', lastPlayed.videoIndex);
       await gotoPlayableVideo(playlist, lastPlayed.videoIndex);
       if (player.paused()) {
-        player.play();
+        await player.play();
       }
     })
     .catch(error => {
@@ -438,7 +438,7 @@ async function gotoPlayableVideo(playlist, currentIndex) {
   if (!success) {
     player.playlist.currentItem(currentIndex);
     console.log('go to', currentIndex);
-    player.play();
+    await player.play();
   }
 }
 

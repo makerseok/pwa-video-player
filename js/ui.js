@@ -21,12 +21,12 @@ const resizeObserver = new ResizeObserver(entries => {
 });
 resizeObserver.observe(playerDOM);
 
-var intersectionObserver = new IntersectionObserver(function (entries) {
+var intersectionObserver = new IntersectionObserver(async function (entries) {
   console.log(entries[0]);
   if (entries[0].isIntersecting) {
     console.log('player is visible!');
     player.isVisible = true;
-    player.play();
+    await player.play();
   } else {
     console.log('player is not visible!');
     player.isVisible = false;
