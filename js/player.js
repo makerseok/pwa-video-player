@@ -410,7 +410,8 @@ const initPlayerPlaylist = (playlist, screen) => {
       }
     })
     .catch(error => {
-      console.log('Error on getLastPlayedIndex; set the index to 0');
+      console.log('Error on getLastPlayedIndex', error);
+      console.log('set the index to 0');
     });
 };
 

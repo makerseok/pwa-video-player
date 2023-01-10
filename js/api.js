@@ -212,19 +212,7 @@ const scheduleEads = eadData => {
 function initPlayer(rad, device, sudo = false) {
   const screen = rad.device_code;
   const { code, message, device_id, company_id, ...deviceInfo } = device;
-  const {
-    device_name,
-    location,
-    remark,
-    on,
-    off,
-    top,
-    left,
-    width,
-    height,
-    locked,
-    ...rest
-  } = deviceInfo;
+  const { on, off, top, left, width, height, locked, call_time } = deviceInfo;
   player.locked = locked === 'Y' ? true : false;
   const pos = { top, left, width, height };
   player.position = pos;
@@ -240,6 +228,7 @@ function initPlayer(rad, device, sudo = false) {
 
   removeDefaultJobs();
   scheduleOnOff(on, off);
+  scheduleCallTime(call_time);
 
   const playlist = itemsToPlaylist(rad);
   player.videoList = itemsToVideoList(rad);
@@ -314,6 +303,20 @@ function scheduleOff(off) {
     player.isEnd = true;
   });
   job.isEnd = true;
+  return job;
+}
+
+/**
+ * 플레이어 초기화 시각 스케쥴링
+ *
+ * @param { callTime } off "HH:MM:SS" 형식의 초기화 시각
+ * @return { Cron } 플레이어 초기화 Cron 객체
+ */
+function scheduleCallTime(callTime) {
+  const job = Cron(hhMMssToCron(callTime), () => {
+    console.log('cron info - call time', hhMMssToCron(callTime));
+    initPlayerWithApiResponses(true);
+  });
   return job;
 }
 
