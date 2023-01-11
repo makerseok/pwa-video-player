@@ -228,7 +228,7 @@ function initPlayer(rad, device, sudo = false) {
 
   removeDefaultJobs();
   scheduleOnOff(on, off);
-  scheduleCallTime(call_time);
+  player.defaultJobs.push(scheduleCallTime(call_time));
 
   const playlist = itemsToPlaylist(rad);
   player.videoList = itemsToVideoList(rad);
