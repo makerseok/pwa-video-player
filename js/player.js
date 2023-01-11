@@ -209,6 +209,7 @@ let player = videojs(document.querySelector('.video-js'), {
   controls: false,
   preload: 'none',
   loadingSpinner: false,
+  errorDisplay: false,
 });
 
 player.ready(async function () {
@@ -326,6 +327,11 @@ player.on('seeking', () => {
     playlist[currentIndex].report.PLAY_ON,
   );
   player.playlist(playlist, currentIndex);
+});
+
+player.on('error', async () => {
+  console.log('error!!!');
+  await gotoPlayableVideo(player.playlist(), player.playlist.currentIndex());
 });
 
 player.on('ended', async function () {
